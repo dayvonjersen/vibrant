@@ -1,5 +1,7 @@
 package vibrant
 
+import "container/heap"
+
 const (
 	BLACK_MAX_LIGHTNESS float64 = 0.05
 	WHITE_MIN_LIGHTNESS float64 = 0.95
@@ -15,8 +17,9 @@ type ColorCutQuantizer struct {
 // XXX stubs
 type Swatch struct{}
 
-func NewSwatch(_ ...interface{}) *Swatch { return &Swatch{} }
-func shouldIgnoreColor(color int) bool   { return true }
+func NewSwatch(_ ...interface{}) *Swatch      { return &Swatch{} }
+func shouldIgnoreColor(color int) bool        { return true }
+func shouldIgnoreColorSwatch(sw *Swatch) bool { return true }
 
 func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	pixels := bitmap.Pixels()
@@ -43,4 +46,23 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 }
 
 func (ccq *ColorCutQuantizer) quantizePixels(maxColorIndex, maxColors int) {
+	pq := make(PriorityQueue, maxColors)
+	heap.Init(&pq)
+	heap.Push(&pq, NewVbox(0, maxColorIndex, ccq.Colors, ccq.ColorPopulations))
+	for pq.Len() < maxColors {
+		v := heap.Pop(&pq).(*Vbox)
+		if v.CanSplit() {
+			heap.Push(&pq, v.Split())
+			heap.Push(&pq, v)
+		} else {
+			break
+		}
+	}
+	for pq.Len() > 0 {
+		v := heap.Pop(&pq).(*Vbox)
+		swatch := v.AverageColor()
+		if !shouldIgnoreColorSwatch(swatch) {
+			ccq.QuantizedColors = append(ccq.QuantizedColors, swatch)
+		}
+	}
 }

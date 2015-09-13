@@ -47,7 +47,7 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 }
 
 func (ccq *ColorCutQuantizer) quantizePixels(maxColorIndex, maxColors int) {
-	pq := make(PriorityQueue, maxColors)
+	pq := make(PriorityQueue, 0)
 	heap.Init(&pq)
 	heap.Push(&pq, NewVbox(0, maxColorIndex, ccq.Colors, ccq.ColorPopulations))
 	for pq.Len() < maxColors {

@@ -89,7 +89,7 @@ func Generate(b *Bitmap, numColors int) (Palette, error) {
 	}
 	if p.DarkVibrantSwatch == nil {
 		if p.VibrantSwatch != nil {
-			h, s, l := RgbToHsl(p.DarkVibrantSwatch.Color)
+			h, s, l := RgbToHsl(p.VibrantSwatch.Color)
 			l = TARGET_DARK_LUMA
 			p.VibrantSwatch = &Swatch{Color: HslToRgb(h, s, l)}
 		}
@@ -98,19 +98,19 @@ func Generate(b *Bitmap, numColors int) (Palette, error) {
 	if p.VibrantSwatch != nil {
 		p.VibrantSwatch.Name = "Vibrant"
 	}
-	if p.VibrantSwatch != nil {
+	if p.DarkVibrantSwatch != nil {
 		p.DarkVibrantSwatch.Name = "DarkVibrant"
 	}
-	if p.VibrantSwatch != nil {
+	if p.LightVibrantSwatch != nil {
 		p.LightVibrantSwatch.Name = "LightVibrant"
 	}
 	if p.MutedSwatch != nil {
 		p.MutedSwatch.Name = "Muted"
 	}
-	if p.MutedSwatch != nil {
+	if p.DarkMutedSwatch != nil {
 		p.DarkMutedSwatch.Name = "DarkMuted"
 	}
-	if p.MutedSwatch != nil {
+	if p.LightMutedSwatch != nil {
 		p.LightMutedSwatch.Name = "LightMuted"
 	}
 	return p, nil

@@ -2,3 +2,4 @@
 *.jpg
 *.png
 iris/*
+cmd/vibrant

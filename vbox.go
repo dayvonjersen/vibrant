@@ -21,10 +21,10 @@ type Vbox struct {
 	populations map[int]int
 }
 
-func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) Vbox {
+func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
 	v := Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
-	return v
+	return &v
 }
 
 func (v *Vbox) fitBox() {
@@ -69,7 +69,7 @@ func (v *Vbox) CanSplit() bool {
 	return (v.upperIndex - v.lowerIndex + 1) > 1
 }
 
-func (v *Vbox) Split() Vbox {
+func (v *Vbox) Split() *Vbox {
 	if !v.CanSplit() {
 		panic("Cannot split a box with only 1 color!")
 	}

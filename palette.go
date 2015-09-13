@@ -5,7 +5,7 @@ import "math"
 
 const (
 	CALCULATE_BITMAP_MIN_DIMENSION  float64 = 100
-	DEFAULT_CALCULATE_NUMBER_COLORS int     = 16
+	DEFAULT_CALCULATE_NUMBER_COLORS int     = 256
 	TARGET_DARK_LUMA                float64 = 0.26
 	MAX_DARK_LUMA                   float64 = 0.45
 	MIN_LIGHT_LUMA                  float64 = 0.55
@@ -58,7 +58,7 @@ func NewPalette(b *Bitmap) (Palette, error) {
 func Generate(b *Bitmap, numColors int) (Palette, error) {
 	var p Palette
 	if numColors < 1 {
-		return p, errors.New("numColors mustbe 1 or greater")
+		return p, errors.New("numColors must be 1 or greater")
 	}
 	minDim := math.Min(float64(b.Width), float64(b.Height))
 	if minDim > CALCULATE_BITMAP_MIN_DIMENSION {

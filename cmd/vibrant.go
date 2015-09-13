@@ -23,6 +23,9 @@ func main() {
     if err != nil {
         panic(err.Error())
     }
+/*    for _, sw := range palette.Swatches {
+        fmt.Println(sw)
+    }*/
     fmt.Println(palette.VibrantSwatch)
     fmt.Println(palette.DarkVibrantSwatch)
     fmt.Println(palette.LightVibrantSwatch)

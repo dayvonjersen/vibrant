@@ -9,7 +9,7 @@ const (
 
 type ColorCutQuantizer struct {
 	//	tempHSL          [3]float64
-	Colors           []int
+	Colors           map[int]int
 	ColorPopulations map[int]int
 	QuantizedColors  []*Swatch
 }
@@ -29,10 +29,12 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	for i, c := range histo.Colors {
 		colorPopulations[c] = histo.ColorCounts[i]
 	}
-	validColors := make([]int, 0)
+	validColors := make(map[int]int, 0)
+	i := 0
 	for _, c := range histo.Colors {
 		if !shouldIgnoreColor(c) {
-			validColors = append(validColors, c)
+			validColors[i] = c
+			i++
 		}
 	}
 	ccq := &ColorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
@@ -64,6 +66,6 @@ func (ccq *ColorCutQuantizer) quantizePixels(maxColorIndex, maxColors int) {
 		swatch := v.AverageColor()
 		if !shouldIgnoreColorSwatch(swatch) {
 			ccq.QuantizedColors = append(ccq.QuantizedColors, swatch)
-		}
+        }
 	}
 }

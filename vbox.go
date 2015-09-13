@@ -17,11 +17,11 @@ type Vbox struct {
 	maxGreen    int
 	minBlue     int
 	maxBlue     int
-	colors      []int
+	colors      map[int]int
 	populations map[int]int
 }
 
-func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
+func NewVbox(lowerIndex, upperIndex int, colors map[int]int, populations map[int]int) *Vbox {
 	v := Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
 	return &v

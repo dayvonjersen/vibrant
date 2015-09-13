@@ -10,6 +10,34 @@ func rgb(rgba ...uint32) (r, g, b float64) {
 	return r, g, b
 }
 
+func RgbToHsl(color int) (h, s, l float64) {
+	r := float64(color>>16&0xff) / 255
+	g := float64(color>>8&0xff) / 255
+	b := float64(color>>0&0xff) / 255
+	min := math.Min(r, math.Min(g, b))
+	max := math.Max(r, math.Max(g, b))
+	delta := max - min
+
+	l = (max + min) / 2
+
+	if delta == 0 {
+		h = 0
+		s = 0
+	} else {
+		switch max {
+		case r:
+			h = math.Mod((g-b)/delta, 6)
+		case g:
+			h = ((b - r) / delta) + 2
+		case b:
+			h = ((r - g) / delta) + 4
+		}
+		s = delta / (1 - math.Abs(2*l-1))
+		h = math.Mod(h*60, 360)
+	}
+	return h, s, l
+}
+
 func Hue(c color.Color) float64 {
 	r, g, b := rgb(c.RGBA())
 

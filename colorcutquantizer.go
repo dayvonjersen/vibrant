@@ -17,8 +17,11 @@ type ColorCutQuantizer struct {
 // XXX stubs
 type Swatch struct{}
 
-func NewSwatch(_ ...interface{}) *Swatch      { return &Swatch{} }
-func shouldIgnoreColor(color int) bool        { return true }
+func NewSwatch(_ ...interface{}) *Swatch { return &Swatch{} }
+func shouldIgnoreColor(color int) bool {
+	h, s, l := RgbToHsl(color)
+	return l <= BLACK_MAX_LIGHTNESS || l >= WHITE_MIN_LIGHTNESS || (h >= 10 && h <= 37 && s <= 0.82)
+}
 func shouldIgnoreColorSwatch(sw *Swatch) bool { return true }
 
 func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {

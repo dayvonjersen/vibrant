@@ -1,6 +1,6 @@
 package vibrant
 
-import "image/color"
+//import "image/color"
 import "math"
 
 func rgb(rgba ...uint32) (r, g, b float64) {
@@ -10,10 +10,30 @@ func rgb(rgba ...uint32) (r, g, b float64) {
 	return r, g, b
 }
 
+func unpackColor(color int) (r, g, b int) {
+	r = color >> 16 & 0xff
+	g = color >> 8 & 0xff
+	b = color >> 0 & 0xff
+	return r, g, b
+}
+
+func unpackColorFloat(color int) (r, g, b float64) {
+	ir, ig, ib := unpackColor(color)
+	r = float64(ir)
+	g = float64(ig)
+	b = float64(ib)
+	return r, g, b
+}
+
+func packColor(r, g, b int) int {
+	return (r << 16) | (g << 8) | b
+}
+
 func RgbToHsl(color int) (h, s, l float64) {
-	r := float64(color>>16&0xff) / 255
-	g := float64(color>>8&0xff) / 255
-	b := float64(color>>0&0xff) / 255
+	r, g, b := unpackColorFloat(color)
+	r /= 255.0
+	g /= 255.0
+	b /= 255.0
 	min := math.Min(r, math.Min(g, b))
 	max := math.Max(r, math.Max(g, b))
 	delta := max - min
@@ -38,6 +58,82 @@ func RgbToHsl(color int) (h, s, l float64) {
 	return h, s, l
 }
 
+func huetocomponent(v1, v2, h float64) float64 {
+	if 6*h < 1 {
+		return v1 + (v2-v1)*6*h
+	}
+	if 2*h < 1 {
+		return v2
+	}
+	if 3*h < 2 {
+		return v1 + (v2-v1)*((2.0/3.0)-h)*6
+	}
+	return v1
+}
+
+func HslToRgb(h, s, l float64) (rgb int) {
+	var r, g, b int
+	if s == 0 {
+		r = int(l * 255)
+		g = r
+		b = r
+	} else {
+		var v1, v2 float64
+		if l < 0.5 {
+			v2 = l * (1 + s)
+		} else {
+			v2 = (l + s) - (s * l)
+		}
+		v1 = 2*l - v2
+		if h < 0 {
+			h += 1
+		}
+		if h > 1 {
+			h -= 1
+		}
+		r = int(255.0 * huetocomponent(v1, v2, h+(1.0/3.0)))
+		g = int(255.0 * huetocomponent(v1, v2, h))
+		b = int(255.0 * huetocomponent(v1, v2, h-(1.0/3.0)))
+	}
+	return packColor(r, g, b)
+}
+
+func TextColor(bgColor int, contrast float64) int {
+	if Contrast(0xffffff, bgColor) >= contrast {
+		return 0xffffff
+	}
+	return 0
+}
+
+func Contrast(fg, bg int) float64 {
+	lum1 := Luminance(unpackColorFloat(fg))
+	lum2 := Luminance(unpackColorFloat(bg))
+	return math.Max(lum1, lum2) / math.Min(lum1, lum2)
+}
+
+func Luminance(red, green, blue float64) float64 {
+	red /= 255.0
+	if red < 0.03928 {
+		red /= 12.92
+	} else {
+		red = math.Pow((red+0.055)/1.055, 2.4)
+	}
+	green /= 255.0
+	if green < 0.03928 {
+		green /= 12.92
+	} else {
+		green = math.Pow((green+0.055)/1.055, 2.4)
+	}
+	blue /= 255.0
+	if blue < 0.03928 {
+		blue /= 12.92
+	} else {
+		blue = math.Pow((blue+0.055)/1.055, 2.4)
+	}
+	return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
+}
+
+/*
 func Hue(c color.Color) float64 {
 	r, g, b := rgb(c.RGBA())
 
@@ -84,4 +180,4 @@ func Brightness(c color.Color) float64 {
 	r, g, b := rgb(c.RGBA())
 	v := math.Max(b, math.Max(r, g))
 	return v / 255
-}
+}*/

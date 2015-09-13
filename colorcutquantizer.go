@@ -14,15 +14,13 @@ type ColorCutQuantizer struct {
 	QuantizedColors  []*Swatch
 }
 
-// XXX stubs
-type Swatch struct{}
-
-func NewSwatch(_ ...interface{}) *Swatch { return &Swatch{} }
 func shouldIgnoreColor(color int) bool {
 	h, s, l := RgbToHsl(color)
 	return l <= BLACK_MAX_LIGHTNESS || l >= WHITE_MIN_LIGHTNESS || (h >= 10 && h <= 37 && s <= 0.82)
 }
-func shouldIgnoreColorSwatch(sw *Swatch) bool { return true }
+func shouldIgnoreColorSwatch(sw *Swatch) bool {
+	return shouldIgnoreColor(sw.Color)
+}
 
 func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	pixels := bitmap.Pixels()
@@ -40,7 +38,7 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	ccq := &ColorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
 	if len(validColors) <= maxColors {
 		for _, c := range validColors {
-			ccq.QuantizedColors = append(ccq.QuantizedColors, NewSwatch(c, colorPopulations[c]))
+			ccq.QuantizedColors = append(ccq.QuantizedColors, &Swatch{Color: c, Population: colorPopulations[c]})
 		}
 	} else {
 		ccq.quantizePixels(len(validColors)-1, maxColors)

@@ -3,9 +3,6 @@ package vibrant
 const (
 	BLACK_MAX_LIGHTNESS float64 = 0.05
 	WHITE_MIN_LIGHTNESS float64 = 0.95
-	COMPONENT_RED       int     = -3
-	COMPONENT_GREEN     int     = -2
-	COMPONENT_BLUE              = -1
 )
 
 type ColorCutQuantizer struct {
@@ -17,8 +14,9 @@ type ColorCutQuantizer struct {
 
 // XXX stubs
 type Swatch struct{}
+
 func NewSwatch(_ ...interface{}) *Swatch { return &Swatch{} }
-func shouldIgnoreColor(color int) bool { return true }
+func shouldIgnoreColor(color int) bool   { return true }
 
 func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	pixels := bitmap.Pixels()

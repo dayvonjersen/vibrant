@@ -36,10 +36,7 @@ func (v *Vbox) fitBox() {
 	v.maxBlue = 0
 
 	for i := v.lowerIndex; i <= v.upperIndex; i++ {
-		color := v.colors[i]
-		r := color >> 16 & 0xff
-		g := color >> 8 & 0xff
-		b := color >> 0 & 0xff
+		r, g, b := unpackColor(v.colors[i])
 		if r > v.maxRed {
 			v.maxRed = r
 		}
@@ -87,41 +84,36 @@ func (v *Vbox) Split() *Vbox {
 		longestDim = COMPONENT_GREEN
 		// We need to do a RGB to GRB swap, or vice-versa
 		for i := v.lowerIndex; i <= v.upperIndex; i++ {
-			color := v.colors[i]
-			r := color >> 16 & 0xff
-			g := color >> 8 & 0xff
-			b := color >> 0 & 0xff
-			v.colors[i] = (g << 16) | (r << 8) | b
+			r, g, b := unpackColor(v.colors[i])
+			v.colors[i] = packColor(g, r, b)
 		}
 		midPoint = (v.minGreen + v.maxGreen) / 2
 	default:
 		longestDim = COMPONENT_BLUE
 		// We need to do a RGB to BGR swap, or vice-versa
 		for i := v.lowerIndex; i <= v.upperIndex; i++ {
-			color := v.colors[i]
-			r := color >> 16 & 0xff
-			g := color >> 8 & 0xff
-			b := color >> 0 & 0xff
-			v.colors[i] = (b << 16) | (g << 8) | r
+			r, g, b := unpackColor(v.colors[i])
+			v.colors[i] = packColor(b, g, r)
 		}
 		midPoint = (v.minBlue + v.maxBlue) / 2
 	}
 	splitPoint := v.lowerIndex
 loop:
 	for i := v.lowerIndex; i <= v.upperIndex; i++ {
+		r, g, b := unpackColor(v.colors[i])
 		switch longestDim {
 		case COMPONENT_RED:
-			if v.colors[i]>>16&0xff >= midPoint {
+			if r >= midPoint {
 				splitPoint = i
 				break loop
 			}
 		case COMPONENT_GREEN:
-			if v.colors[i]>>8&0xff >= midPoint {
+			if g >= midPoint {
 				splitPoint = i
 				break loop
 			}
 		case COMPONENT_BLUE:
-			if v.colors[i]>>0&0xff >= midPoint {
+			if b >= midPoint {
 				splitPoint = i
 				break loop
 			}
@@ -141,10 +133,11 @@ func (v *Vbox) AverageColor() *Swatch {
 	pop := 0
 	for i := v.lowerIndex; i <= v.upperIndex; i++ {
 		color := v.colors[i]
+		r, g, b := unpackColor(color)
 		pop += v.populations[color]
-		sumRed += color >> 16 & 0xff
-		sumGreen += color >> 8 & 0xff
-		sumBlue += color >> 0 & 0xff
+		sumRed += r
+		sumGreen += g
+		sumBlue += b
 	}
 	avgRed := int(math.Floor(float64(sumRed) / float64(pop)))
 	avgGreen := int(math.Floor(float64(sumGreen) / float64(pop)))

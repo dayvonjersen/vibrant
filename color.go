@@ -1,6 +1,6 @@
 package vibrant
 
-//import "image/color"
+import "image/color"
 import "math"
 
 func rgb(rgba ...uint32) (r, g, b float64) {
@@ -8,6 +8,16 @@ func rgb(rgba ...uint32) (r, g, b float64) {
 	g = float64(rgba[1] >> 8)
 	b = float64(rgba[2] >> 8)
 	return r, g, b
+}
+
+func colorToRgb(c color.Color) (int, int, int) {
+	r, g, b, _ := c.RGBA()
+	return int(r >> 8), int(g >> 8), int(b >> 8)
+}
+
+func rgbToColor(r, g, b int) color.Color {
+	rgba := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: 0xff}
+	return rgba
 }
 
 func unpackColor(color int) (r, g, b int) {

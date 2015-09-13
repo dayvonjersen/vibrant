@@ -9,18 +9,10 @@ type ColorHistogram struct {
 	NumberColors int
 }
 
-func colortoint(c color.Color) int {
-	r, g, b, _ := c.RGBA()
-	r >>= 8
-	g >>= 8
-	b >>= 8
-	return int((r << 16) | (g << 8) | b)
-}
-
 func NewColorHistogram(colorPixels []color.Color) *ColorHistogram {
 	pixels := make([]int, len(colorPixels))
 	for _, px := range colorPixels {
-		pixels = append(pixels, colortoint(px))
+		pixels = append(pixels, packColor(colorToRgb(px)))
 	}
 	sort.Ints(pixels)
 	numColors := countDistinctColors(pixels)

@@ -1,5 +1,7 @@
 package vibrant
 
+import "math"
+
 const (
 	COMPONENT_RED   int = -3
 	COMPONENT_GREEN int = -2
@@ -7,19 +9,20 @@ const (
 )
 
 type Vbox struct {
-	lowerIndex int
-	upperIndex int
-	minRed     int
-	maxRed     int
-	minGreen   int
-	maxGreen   int
-	minBlue    int
-	maxBlue    int
-	colors     *[]int
+	lowerIndex  int
+	upperIndex  int
+	minRed      int
+	maxRed      int
+	minGreen    int
+	maxGreen    int
+	minBlue     int
+	maxBlue     int
+	colors      []int
+	populations []int
 }
 
-func NewVbox(lowerIndex, upperIndex int, colors *[]int) VBox {
-	v := Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors}
+func NewVbox(lowerIndex, upperIndex int, colors []int, populations []int) Vbox {
+	v := Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
 	return v
 }
@@ -32,7 +35,7 @@ func (v *Vbox) fitBox() {
 	v.maxGreen = 0
 	v.maxBlue = 0
 
-	for i = v.lowerIndex; i < v.upperIndex; i++ {
+	for i := v.lowerIndex; i <= v.upperIndex; i++ {
 		color := v.colors[i]
 		r := color >> 16 & 0xff
 		g := color >> 8 & 0xff
@@ -125,8 +128,27 @@ loop:
 		}
 	}
 
-	vbox := NewVbox(splitPoint+1, v.upperIndex)
+	vbox := NewVbox(splitPoint+1, v.upperIndex, v.colors, v.populations)
 	v.upperIndex = splitPoint
 	v.fitBox()
 	return vbox
+}
+
+func (v *Vbox) AverageColor() *Swatch {
+	sumRed := 0
+	sumGreen := 0
+	sumBlue := 0
+	pop := 0
+	for i := v.lowerIndex; i <= v.upperIndex; i++ {
+		color := v.colors[i]
+		pop += v.populations[color]
+		sumRed += color >> 16 & 0xff
+		sumGreen += color >> 8 & 0xff
+		sumBlue += color >> 0 & 0xff
+	}
+	avgRed := int(math.Floor(float64(sumRed) / float64(pop)))
+	avgGreen := int(math.Floor(float64(sumGreen) / float64(pop)))
+	avgBlue := int(math.Floor(float64(sumBlue) / float64(pop)))
+
+	return NewSwatch(avgRed, avgGreen, avgBlue, pop)
 }

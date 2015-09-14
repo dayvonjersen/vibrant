@@ -1,6 +1,7 @@
 package vibrant
 
 import "fmt"
+import "strings"
 
 type Swatch struct {
 	Color      int
@@ -11,7 +12,7 @@ type Swatch struct {
 func (sw *Swatch) String() string {
 	r, g, b := unpackColor(sw.Color)
 	bg := fmt.Sprintf("#%02x%02x%02x", r, g, b)
-	return fmt.Sprintf("(Swatch) Population: %d, Color: %s, Name: %s", sw.Population, bg, sw.Name)
+	//return fmt.Sprintf("(Swatch) Population: %d, Color: %s, Name: %s", sw.Population, bg, sw.Name)
 	//bg := fmt.Sprintf("rgb(%d,%d,%d)", r, g, b)
 	/*	tcolor := sw.TitleTextColor()
 		r, g, b = unpackColor(tcolor)
@@ -21,8 +22,8 @@ func (sw *Swatch) String() string {
 		r, g, b = unpackColor(bcolor)
 		bt := fmt.Sprintf("#%02x%02x%02x", r, g, b)
 		//bt := fmt.Sprintf("rgb(%d,%d,%d)", r, g, b)
-
-		return fmt.Sprintf(".%s { background-color: %s; color: %s }\n .%s .title { color: %s }", sw.Name, bg, bt, tt)*/
+    */
+	return fmt.Sprintf(".%s { background-color: %s;}\n", strings.ToLower(sw.Name), bg)
 }
 
 func (sw *Swatch) TitleTextColor() int {

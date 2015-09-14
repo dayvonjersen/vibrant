@@ -23,9 +23,9 @@ type Vbox struct {
 }
 
 func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
-	v := Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
+	v := &Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
-	return &v
+	return v
 }
 
 func (v *Vbox) fitBox() {
@@ -71,6 +71,7 @@ func (v *Vbox) Split() *Vbox {
 	if !v.CanSplit() {
 		panic("Cannot split a box with only 1 color!")
 	}
+
 	lenRed := v.maxRed - v.minRed
 	lenGreen := v.maxGreen - v.minGreen
 	lenBlue := v.maxBlue - v.minBlue
@@ -126,7 +127,8 @@ loop:
 func (v *Vbox) sortColors() {
 	//	length := v.upperIndex - v.lowerIndex
 	section := v.colors[v.lowerIndex : v.upperIndex+1]
-	sort.Ints(section)
+	//sort.Sort(sort.Reverse(sort.IntSlice(section)))
+    sort.Ints(section)
 	i := v.lowerIndex
 	for _, color := range section {
 		v.colors[i] = color

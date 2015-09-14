@@ -41,14 +41,14 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	//fmt.Printf("valid colors: %d\n", len(validColors))
 	validCount := len(validColors)
 	// XXX complete arbitrary and temporary XXX
-	switch {
+/*	switch {
 	case validCount < 5000:
 		maxColors = 1024
 	case validCount >= 5000 && validCount < 10000:
 		maxColors = 2048
 	case validCount >= 10000 && validCount < 20000:
 		maxColors = 4096
-	}
+	}*/
 	ccq := &ColorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
 	if validCount <= maxColors {
 		for _, c := range validColors {

@@ -23,7 +23,6 @@ type Vbox struct {
 }
 
 func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
-    sort.Ints(colors)
 	v := &Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
 	return v
@@ -82,6 +81,7 @@ func (v *Vbox) Split() *Vbox {
 	case lenRed >= lenGreen && lenRed >= lenBlue:
 		longestDim = COMPONENT_RED
 		// Already in RGB, no need to do anything
+        v.sortColors()
 		midPoint = (v.minRed + v.maxRed) / 2
 	case lenGreen >= lenRed && lenGreen >= lenBlue:
 		longestDim = COMPONENT_GREEN
@@ -158,20 +158,21 @@ func (v *Vbox) AverageColor() *Swatch {
 	sumRed := 0
 	sumGreen := 0
 	sumBlue := 0
-	pop := 0
+	sumPop := 0
 	for i := v.lowerIndex; i <= v.upperIndex; i++ {
 		color := v.colors[i]
 		r, g, b := unpackColor(color)
-		pop += v.populations[color]
-		sumRed += r
-		sumGreen += g
-		sumBlue += b
+		pop := v.populations[color]
+        sumPop += pop
+		sumRed += r * pop
+		sumGreen += g * pop
+		sumBlue += b *pop
 	}
-	avgRed := round(float64(sumRed) / float64(pop))
-	avgGreen := round(float64(sumGreen) / float64(pop))
-	avgBlue := round(float64(sumBlue) / float64(pop))
+	avgRed := round(float64(sumRed) / float64(sumPop))
+	avgGreen := round(float64(sumGreen) / float64(sumPop))
+	avgBlue := round(float64(sumBlue) / float64(sumPop))
 
-	return &Swatch{Color: packColor(avgRed, avgGreen, avgBlue), Population: pop}
+	return &Swatch{Color: packColor(avgRed, avgGreen, avgBlue), Population: sumPop}
 }
 
 func round(val float64) int {

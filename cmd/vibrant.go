@@ -30,8 +30,8 @@ func main() {
 	}
 	bitmap := vibrant.NewBitmap(img)
 	//colors, _ := strconv.Atoi(os.Args[2])
-	//palette, err := vibrant.Generate(bitmap, 32)
-	palette, err := vibrant.NewPalette(bitmap)
+	palette, err := vibrant.Generate(bitmap, 65535)
+	//palette, err := vibrant.NewPalette(bitmap)
 	if err != nil {
 		panic(err.Error())
 	}

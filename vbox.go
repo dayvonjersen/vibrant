@@ -1,6 +1,7 @@
 package vibrant
 
 import "math"
+import "sort"
 
 const (
 	COMPONENT_RED   int = -3
@@ -17,11 +18,11 @@ type Vbox struct {
 	maxGreen    int
 	minBlue     int
 	maxBlue     int
-	colors      map[int]int
+	colors      []int
 	populations map[int]int
 }
 
-func NewVbox(lowerIndex, upperIndex int, colors map[int]int, populations map[int]int) *Vbox {
+func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
 	v := Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
 	return &v
@@ -82,19 +83,15 @@ func (v *Vbox) Split() *Vbox {
 		midPoint = (v.minRed + v.maxRed) / 2
 	case lenGreen >= lenRed && lenGreen >= lenBlue:
 		longestDim = COMPONENT_GREEN
-		// We need to do a RGB to GRB swap, or vice-versa
-		for i := v.lowerIndex; i <= v.upperIndex; i++ {
-			r, g, b := unpackColor(v.colors[i])
-			v.colors[i] = packColor(g, r, b)
-		}
+		v.modifySignificantOctet(longestDim)
+		v.sortColors()
+		v.modifySignificantOctet(longestDim)
 		midPoint = (v.minGreen + v.maxGreen) / 2
 	default:
 		longestDim = COMPONENT_BLUE
-		// We need to do a RGB to BGR swap, or vice-versa
-		for i := v.lowerIndex; i <= v.upperIndex; i++ {
-			r, g, b := unpackColor(v.colors[i])
-			v.colors[i] = packColor(b, g, r)
-		}
+		v.modifySignificantOctet(longestDim)
+		v.sortColors()
+		v.modifySignificantOctet(longestDim)
 		midPoint = (v.minBlue + v.maxBlue) / 2
 	}
 	splitPoint := v.lowerIndex
@@ -126,6 +123,36 @@ loop:
 	return vbox
 }
 
+func (v *Vbox) sortColors() {
+//	length := v.upperIndex - v.lowerIndex
+	section := v.colors[v.lowerIndex:v.upperIndex+1]
+	sort.Ints(section)
+	i := v.lowerIndex
+	for _, color := range section {
+		v.colors[i] = color
+		i++
+	}
+    if i != v.upperIndex+1 {
+        panic("aaa")
+    }
+}
+
+func (v *Vbox) modifySignificantOctet(dim int) {
+	switch dim {
+	case COMPONENT_RED:
+	case COMPONENT_GREEN:
+		for i := v.lowerIndex; i <= v.upperIndex; i++ {
+			r, g, b := unpackColor(v.colors[i])
+			v.colors[i] = packColor(g, r, b)
+		}
+	case COMPONENT_BLUE:
+		for i := v.lowerIndex; i <= v.upperIndex; i++ {
+			r, g, b := unpackColor(v.colors[i])
+			v.colors[i] = packColor(b, g, r)
+		}
+	}
+}
+
 func (v *Vbox) AverageColor() *Swatch {
 	sumRed := 0
 	sumGreen := 0
@@ -147,14 +174,14 @@ func (v *Vbox) AverageColor() *Swatch {
 }
 
 func round(val float64) int {
-    var ret float64
-    pow := math.Pow(10, 14)
-    digit := pow * val
-    _, div := math.Modf(digit)
-    if div >= 0.5 {
-        ret = math.Ceil(digit)
-    } else {
-        ret = math.Floor(digit)
-    }
-    return int(ret/pow)
+	var ret float64
+	pow := math.Pow(10, 14)
+	digit := pow * val
+	_, div := math.Modf(digit)
+	if div >= 0.5 {
+		ret = math.Ceil(digit)
+	} else {
+		ret = math.Floor(digit)
+	}
+	return int(ret / pow)
 }

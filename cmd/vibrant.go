@@ -7,19 +7,27 @@ import _ "image/jpeg"
 
 import "localhost/vibrant"
 import "fmt"
+import "strconv"
 
 func main() {
-	f, err := os.Open("test4.jpg")
+    if len(os.Args) <= 2 {
+        println("usage: vibrant [input image] [maxColors]")
+        os.Exit(1)
+    }
+	f, err := os.Open(os.Args[1])
 	if err != nil {
-		panic(err.Error())
+		println(err.Error())
+        os.Exit(1)
 	}
 	img, _, err := image.Decode(f)
 	f.Close()
 	if err != nil {
-		panic(err.Error())
+		println(err.Error())
+        os.Exit(1)
 	}
     bitmap := vibrant.NewBitmap(img)
-    palette, err := vibrant.NewPalette(bitmap)
+    colors, _ := strconv.Atoi(os.Args[2])
+    palette, err := vibrant.Generate(bitmap,colors)
     if err != nil {
         panic(err.Error())
     }

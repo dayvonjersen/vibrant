@@ -1,6 +1,7 @@
 package vibrant
 
 import "container/heap"
+import "fmt"
 
 const (
 	BLACK_MAX_LIGHTNESS float64 = 0.05
@@ -26,6 +27,7 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	pixels := bitmap.Pixels()
 	histo := NewColorHistogram(pixels)
 	colorPopulations := make(map[int]int, histo.NumberColors)
+    fmt.Printf("histogram colors: %d\n", histo.NumberColors)
 	for i, c := range histo.Colors {
 		colorPopulations[c] = histo.ColorCounts[i]
 	}
@@ -37,6 +39,7 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 			i++
 		}
 	}
+    fmt.Printf("valid colors: %d\n", len(validColors))
 	ccq := &ColorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
 	if len(validColors) <= maxColors {
 		for _, c := range validColors {

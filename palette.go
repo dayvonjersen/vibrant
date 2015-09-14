@@ -5,7 +5,7 @@ import "math"
 
 const (
 	CALCULATE_BITMAP_MIN_DIMENSION  float64 = 100
-	DEFAULT_CALCULATE_NUMBER_COLORS int     = 256
+	DEFAULT_CALCULATE_NUMBER_COLORS int     = 16
 	TARGET_DARK_LUMA                float64 = 0.26
 	MAX_DARK_LUMA                   float64 = 0.45
 	MIN_LIGHT_LUMA                  float64 = 0.55

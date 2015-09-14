@@ -139,9 +139,22 @@ func (v *Vbox) AverageColor() *Swatch {
 		sumGreen += g
 		sumBlue += b
 	}
-	avgRed := int(math.Floor(float64(sumRed) / float64(pop)))
-	avgGreen := int(math.Floor(float64(sumGreen) / float64(pop)))
-	avgBlue := int(math.Floor(float64(sumBlue) / float64(pop)))
+	avgRed := round(float64(sumRed) / float64(pop))
+	avgGreen := round(float64(sumGreen) / float64(pop))
+	avgBlue := round(float64(sumBlue) / float64(pop))
 
 	return &Swatch{Color: packColor(avgRed, avgGreen, avgBlue), Population: pop}
+}
+
+func round(val float64) int {
+    var ret float64
+    pow := math.Pow(10, 14)
+    digit := pow * val
+    _, div := math.Modf(digit)
+    if div >= 0.5 {
+        ret = math.Ceil(digit)
+    } else {
+        ret = math.Floor(digit)
+    }
+    return int(ret/pow)
 }

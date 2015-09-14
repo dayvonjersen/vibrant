@@ -3,3 +3,4 @@
 *.png
 iris/*
 cmd/vibrant
+cmd/cmd

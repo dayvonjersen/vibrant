@@ -4,6 +4,7 @@ import "os"
 
 import "image"
 import _ "image/jpeg"
+import _ "image/png"
 
 import "localhost/vibrant"
 import "fmt"
@@ -29,7 +30,7 @@ func main() {
 	}
 	bitmap := vibrant.NewBitmap(img)
 	//colors, _ := strconv.Atoi(os.Args[2])
-	palette, err := vibrant.Generate(bitmap, 8192)
+	palette, err := vibrant.Generate(bitmap, 32)
 	//palette, err := vibrant.NewPalette(bitmap)
 	if err != nil {
 		panic(err.Error())

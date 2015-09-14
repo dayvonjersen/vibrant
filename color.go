@@ -40,7 +40,12 @@ func packColor(r, g, b int) int {
 }
 
 func RgbToHsl(color int) (h, s, l float64) {
-	r, g, b := unpackColorFloat(color)
+    r,g,b := unpackColorFloat(color)
+    h = Hue(r,g,b)
+    s = Saturation(r,g,b)
+    l = Brightness(r,g,b)
+    return
+/*	r, g, b := unpackColorFloat(color)
 	r /= 255.0
 	g /= 255.0
 	b /= 255.0
@@ -63,9 +68,9 @@ func RgbToHsl(color int) (h, s, l float64) {
 			h = ((r - g) / delta) + 4
 		}
 		s = delta / (1 - math.Abs(2*l-1))
-		h = math.Mod(h*60, 360)
+		h = math.Mod(h*360, 360)
 	}
-	return h, s, l
+	return h, s, l*/
 }
 
 func huetocomponent(v1, v2, h float64) float64 {
@@ -88,6 +93,7 @@ func HslToRgb(h, s, l float64) (rgb int) {
 		g = r
 		b = r
 	} else {
+        h /= 360
 		var v1, v2 float64
 		if l < 0.5 {
 			v2 = l * (1 + s)
@@ -143,10 +149,8 @@ func Luminance(red, green, blue float64) float64 {
 	return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
 }
 
-/*
-func Hue(c color.Color) float64 {
-	r, g, b := rgb(c.RGBA())
 
+func Hue(r, g, b float64) float64 {
 	v := math.Max(b, math.Max(r, g))
 	t := math.Min(b, math.Min(r, g))
 
@@ -176,8 +180,7 @@ func Hue(c color.Color) float64 {
 	return h
 }
 
-func Saturation(c color.Color) float64 {
-	r, g, b := rgb(c.RGBA())
+func Saturation(r, g, b float64) float64 {
 	v := math.Max(b, math.Max(r, g))
 	t := math.Min(b, math.Min(r, g))
 	if v == t {
@@ -186,8 +189,7 @@ func Saturation(c color.Color) float64 {
 	return (v - t) / v
 }
 
-func Brightness(c color.Color) float64 {
-	r, g, b := rgb(c.RGBA())
+func Brightness(r, g, b float64) float64 {
 	v := math.Max(b, math.Max(r, g))
 	return v / 255
-}*/
+}

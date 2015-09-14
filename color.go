@@ -1,5 +1,6 @@
 package vibrant
 
+import colorconv "code.google.com/p/sadbox/color"
 import "image/color"
 import "math"
 
@@ -40,11 +41,16 @@ func packColor(r, g, b int) int {
 }
 
 func RgbToHsl(color int) (h, s, l float64) {
+    r,g,b := unpackColor(color)
+    h, s, l = colorconv.RGBToHSL(uint8(r),uint8(g),uint8(b))
+    return
+/*
     r,g,b := unpackColorFloat(color)
     h = Hue(r,g,b)
     s = Saturation(r,g,b)
     l = Brightness(r,g,b)
     return
+*/
 /*	r, g, b := unpackColorFloat(color)
 	r /= 255.0
 	g /= 255.0
@@ -87,13 +93,14 @@ func huetocomponent(v1, v2, h float64) float64 {
 }
 
 func HslToRgb(h, s, l float64) (rgb int) {
-	var r, g, b int
+    r, g, b := colorconv.HSLToRGB(h, s, l)
+    return packColor(int(r),int(g),int(b))
+/*	var r, g, b int
 	if s == 0 {
 		r = int(l * 255)
 		g = r
 		b = r
 	} else {
-        h /= 360
 		var v1, v2 float64
 		if l < 0.5 {
 			v2 = l * (1 + s)
@@ -112,6 +119,7 @@ func HslToRgb(h, s, l float64) (rgb int) {
 		b = int(255.0 * huetocomponent(v1, v2, h-(1.0/3.0)))
 	}
 	return packColor(r, g, b)
+*/
 }
 
 func TextColor(bgColor int, contrast float64) int {

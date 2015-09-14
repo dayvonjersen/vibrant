@@ -23,6 +23,7 @@ type Vbox struct {
 }
 
 func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
+    sort.Ints(colors)
 	v := &Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
 	return v

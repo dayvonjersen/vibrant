@@ -10,26 +10,22 @@ type Swatch struct {
 }
 
 func (sw *Swatch) String() string {
-	r, g, b := unpackColor(sw.Color)
-	bg := fmt.Sprintf("#%02x%02x%02x", r, g, b)
-	//return fmt.Sprintf("(Swatch) Population: %d, Color: %s, Name: %s", sw.Population, bg, sw.Name)
-	//bg := fmt.Sprintf("rgb(%d,%d,%d)", r, g, b)
-	/*	tcolor := sw.TitleTextColor()
-		r, g, b = unpackColor(tcolor)
-		tt := fmt.Sprintf("#%02x%02x%02x", r, g, b)
-		//tt := fmt.Sprintf("rgb(%d,%d,%d)", r, g, b)
-		bcolor := sw.BodyTextColor()
-		r, g, b = unpackColor(bcolor)
-		bt := fmt.Sprintf("#%02x%02x%02x", r, g, b)
-		//bt := fmt.Sprintf("rgb(%d,%d,%d)", r, g, b)
-    */
-	return fmt.Sprintf(".%s { background-color: %s;}\n", strings.ToLower(sw.Name), bg)
+	return fmt.Sprintf(".%s { background-color: %s; color: %s;}\n", strings.ToLower(sw.Name), sw.RGBHex(), sw.BodyTextColor())
 }
 
-func (sw *Swatch) TitleTextColor() int {
-	return TextColor(sw.Color, MIN_CONTRAST_TITLE_TEXT)
+func rgbHex(color int) string {
+	r, g, b := unpackColor(color)
+	return fmt.Sprintf("#%02x%02x%02x", r, g, b)
 }
 
-func (sw *Swatch) BodyTextColor() int {
-	return TextColor(sw.Color, MIN_CONTRAST_BODY_TEXT)
+func (sw *Swatch) RGBHex() string {
+    return rgbHex(sw.Color)
+}
+
+func (sw *Swatch) TitleTextColor() string {
+	return rgbHex(TextColor(sw.Color, MIN_CONTRAST_TITLE_TEXT))
+}
+
+func (sw *Swatch) BodyTextColor() string {
+	return rgbHex(TextColor(sw.Color, MIN_CONTRAST_BODY_TEXT))
 }

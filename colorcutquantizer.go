@@ -1,7 +1,7 @@
 package vibrant
 
 import "container/heap"
-import "fmt"
+//import "fmt"
 
 const (
 	BLACK_MAX_LIGHTNESS float64 = 0.05
@@ -9,7 +9,6 @@ const (
 )
 
 type ColorCutQuantizer struct {
-	//	tempHSL          [3]float64
 	Colors           []int
 	ColorPopulations map[int]int
 	QuantizedColors  []*Swatch
@@ -27,7 +26,7 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 	pixels := bitmap.Pixels()
 	histo := NewColorHistogram(pixels)
 	colorPopulations := make(map[int]int, histo.NumberColors)
-	fmt.Printf("histogram colors: %d\n", histo.NumberColors)
+	//fmt.Printf("histogram colors: %d\n", histo.NumberColors)
 	for i, c := range histo.Colors {
 		colorPopulations[c] = histo.ColorCounts[i]
 	}
@@ -39,14 +38,24 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 			i++
 		}
 	}
-	fmt.Printf("valid colors: %d\n", len(validColors))
+	//fmt.Printf("valid colors: %d\n", len(validColors))
+	validCount := len(validColors)
+	// XXX complete arbitrary and temporary XXX
+	switch {
+	case validCount < 5000:
+		maxColors = 1024
+	case validCount >= 5000 && validCount < 10000:
+		maxColors = 2048
+	case validCount >= 10000 && validCount < 20000:
+		maxColors = 4096
+	}
 	ccq := &ColorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
-	if len(validColors) <= maxColors {
+	if validCount <= maxColors {
 		for _, c := range validColors {
 			ccq.QuantizedColors = append(ccq.QuantizedColors, &Swatch{Color: c, Population: colorPopulations[c]})
 		}
 	} else {
-		ccq.quantizePixels(len(validColors)-1, maxColors)
+		ccq.quantizePixels(validCount-1, maxColors)
 	}
 	return ccq
 }

@@ -124,22 +124,20 @@ loop:
 }
 
 func (v *Vbox) sortColors() {
-//	length := v.upperIndex - v.lowerIndex
-	section := v.colors[v.lowerIndex:v.upperIndex+1]
+	//	length := v.upperIndex - v.lowerIndex
+	section := v.colors[v.lowerIndex : v.upperIndex+1]
 	sort.Ints(section)
 	i := v.lowerIndex
 	for _, color := range section {
 		v.colors[i] = color
 		i++
 	}
-    if i != v.upperIndex+1 {
-        panic("aaa")
-    }
 }
 
 func (v *Vbox) modifySignificantOctet(dim int) {
 	switch dim {
 	case COMPONENT_RED:
+		return
 	case COMPONENT_GREEN:
 		for i := v.lowerIndex; i <= v.upperIndex; i++ {
 			r, g, b := unpackColor(v.colors[i])

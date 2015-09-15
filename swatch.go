@@ -10,7 +10,7 @@ type Swatch struct {
 }
 
 func (sw *Swatch) String() string {
-	return fmt.Sprintf(".%s { background-color: %s; color: %s;}\n", strings.ToLower(sw.Name), sw.RGBHex(), sw.BodyTextColor())
+	return fmt.Sprintf(".%s{background-color:%s;color:%s;}", strings.ToLower(sw.Name), sw.RGBHex(), sw.BodyTextColor())
 }
 
 func rgbHex(color int) string {
@@ -19,7 +19,7 @@ func rgbHex(color int) string {
 }
 
 func (sw *Swatch) RGBHex() string {
-    return rgbHex(sw.Color)
+	return rgbHex(sw.Color)
 }
 
 func (sw *Swatch) TitleTextColor() string {

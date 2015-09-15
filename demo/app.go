@@ -17,7 +17,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%v %v\n", time.Now(), r)
 	w.Header().Set("Content-Type", "text/html")
 
-    maxColors := 256
+	maxColors := 256
 
 	fmt.Fprintf(w, `<!doctype html>
 <html>
@@ -71,7 +71,7 @@ button {
 button:hover {
     box-shadow: none;
 }
-button:active, button:focus {
+button:active {
     box-shadow: 0 0 0 100vmax rgba(153,204,255,1);
 }
 input[type="text"] {
@@ -127,18 +127,17 @@ input[type="text"] {
 		return
 	}
 
-    if max := r.FormValue("maxColors"); max != "" {
-        n,err := strconv.Atoi(max)
-        if err != nil {
-            fmt.Fprintf(w, "        <h3>Error: %s</h3>", err)
-        }
-        maxColors = n
-    }
+	if max := r.FormValue("maxColors"); max != "" {
+		n, err := strconv.Atoi(max)
+		if err != nil {
+			fmt.Fprintf(w, "        <h3>Error: %s</h3>", err)
+		}
+		maxColors = n
+	}
 
 	start := time.Now()
 	bitmap := vibrant.NewBitmap(img)
-	palette, err := vibrant.Generate(bitmap, maxColors)
-	//palette, err := vibrant.NewPalette(bitmap)
+	palette, err := vibrant.NewPalette(bitmap, maxColors)
 	benchmark := time.Since(start)
 	if err != nil {
 		//w.WriteHeader(http.StatusInternalServerError)
@@ -176,26 +175,14 @@ textarea {
 h2 {
     text-align: center;
 }`)
+	awesome := palette.ExtractAwesome()
 	stylesheet := ""
-	if palette.VibrantSwatch != nil {
-		stylesheet = fmt.Sprintf("%s%s", stylesheet, palette.VibrantSwatch)
-		vendorPrefixingIsAWESOME := fmt.Sprintf("{\n    background-color: %s;\n   color: %s;\n}\n", palette.VibrantSwatch.RGBHex(), palette.VibrantSwatch.TitleTextColor())
-		fmt.Fprintf(w, "::selection %s::-moz-selection %s::-webkit-selection %s", vendorPrefixingIsAWESOME, vendorPrefixingIsAWESOME, vendorPrefixingIsAWESOME)
-	}
-	if palette.DarkVibrantSwatch != nil {
-		stylesheet = fmt.Sprintf("%s%s", stylesheet, palette.DarkVibrantSwatch)
-	}
-	if palette.LightVibrantSwatch != nil {
-		stylesheet = fmt.Sprintf("%s%s", stylesheet, palette.LightVibrantSwatch)
-	}
-	if palette.MutedSwatch != nil {
-		stylesheet = fmt.Sprintf("%s%s", stylesheet, palette.MutedSwatch)
-	}
-	if palette.DarkMutedSwatch != nil {
-		stylesheet = fmt.Sprintf("%s%s", stylesheet, palette.DarkMutedSwatch)
-	}
-	if palette.LightMutedSwatch != nil {
-		stylesheet = fmt.Sprintf("%s%s", stylesheet, palette.LightMutedSwatch)
+	for _, sw := range awesome {
+		stylesheet += fmt.Sprintf("%s\n", sw)
+		if sw.Name == "Vibrant" {
+			vendorPrefixingIsAWESOME := fmt.Sprintf("{\n    background-color: %s;\n   color: %s;\n}\n", sw.RGBHex(), sw.TitleTextColor())
+			fmt.Fprintf(w, "::selection %s::-moz-selection %s::-webkit-selection %s", vendorPrefixingIsAWESOME, vendorPrefixingIsAWESOME, vendorPrefixingIsAWESOME)
+		}
 	}
 
 	fmt.Fprintf(w, "%s\n        </style>\n", stylesheet)
@@ -210,9 +197,9 @@ h2 {
             </figcaption>
         </figure>`)
 	fmt.Fprintf(w, "\n      <textarea readonly onclick='this.select()'>%s</textarea>\n", stylesheet)
-    if palette.VibrantSwatch == nil || palette.DarkVibrantSwatch == nil || palette.LightVibrantSwatch == nil || palette.MutedSwatch == nil || palette.DarkMutedSwatch == nil || palette.LightMutedSwatch == nil {
-        fmt.Fprintf(w, "<h3>If color swatches are missing which you believe should be present, try increasing <code>maxColors</code> in the text field above.</h3>\n")
-    }
+	if len(awesome) != 6 {
+		fmt.Fprintf(w, "<h3>If color swatches are missing which you believe should be present, try increasing <code>maxColors</code> in the text field above.</h3>\n")
+	}
 	fmt.Fprintf(w, "<h2>%v</h2>", benchmark)
 }
 

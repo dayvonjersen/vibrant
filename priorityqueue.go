@@ -1,5 +1,6 @@
 package vibrant
 
+// Simple PriorityQueue taken directly from the example for container/heap
 type PriorityQueue []*Vbox
 
 func (pq PriorityQueue) Len() int { return len(pq) }

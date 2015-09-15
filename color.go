@@ -4,23 +4,26 @@ import colorconv "code.google.com/p/sadbox/color"
 import "image/color"
 import "math"
 
-func rgb(rgba ...uint32) (r, g, b float64) {
-	r = float64(rgba[0] >> 8)
-	g = float64(rgba[1] >> 8)
-	b = float64(rgba[2] >> 8)
-	return r, g, b
-}
-
-func colorToRgb(c color.Color) (int, int, int) {
+// takes the output from color.Color.RGBA() and normalizes it into
+// r, g, b components in the range of 0-255
+func ColorToRgb(c color.Color) (int, int, int) {
 	r, g, b, _ := c.RGBA()
 	return int(r >> 8), int(g >> 8), int(b >> 8)
 }
 
-func rgbToColor(r, g, b int) color.Color {
+// inverse operation of ColorToRgb
+func RgbToColor(r, g, b int) color.Color {
 	rgba := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: 0xff}
 	return rgba
 }
 
+// takes r, g, b components in the range of 0-255 and packs them into
+// a 24-bit int
+func packColor(r, g, b int) int {
+	return (r << 16) | (g << 8) | b
+}
+
+// inverse of packColor
 func unpackColor(color int) (r, g, b int) {
 	r = color >> 16 & 0xff
 	g = color >> 8 & 0xff
@@ -28,6 +31,7 @@ func unpackColor(color int) (r, g, b int) {
 	return r, g, b
 }
 
+// floating point version of unpackColor
 func unpackColorFloat(color int) (r, g, b float64) {
 	ir, ig, ib := unpackColor(color)
 	r = float64(ir)
@@ -36,34 +40,38 @@ func unpackColorFloat(color int) (r, g, b float64) {
 	return r, g, b
 }
 
-func packColor(r, g, b int) int {
-	return (r << 16) | (g << 8) | b
-}
-
+// given a 24-bit int color (aka HTML hex aka #FFFFFF = 0xFFFFFF = white)
+// returns Hue, Saturation, and Lightness components
+// uses code.google.com/p/sadbox/color for conversion because math is hard
 func RgbToHsl(color int) (h, s, l float64) {
-    r,g,b := unpackColor(color)
-    h, s, l = colorconv.RGBToHSL(uint8(r),uint8(g),uint8(b))
-    return
+	r, g, b := unpackColor(color)
+	h, s, l = colorconv.RGBToHSL(uint8(r), uint8(g), uint8(b))
+	return
 }
 
+// given Hue, Saturation, and Lightness components, returns a 24-bit int color
+// uses code.google.com/p/sadbox/color for conversion because math is hard
 func HslToRgb(h, s, l float64) (rgb int) {
-    r, g, b := colorconv.HSLToRGB(h, s, l)
-    return packColor(int(r),int(g),int(b))
+	r, g, b := colorconv.HSLToRGB(h, s, l)
+	return packColor(int(r), int(g), int(b))
 }
 
-func TextColor(bgColor int, contrast float64) int {
-	if Contrast(0xffffff, bgColor) >= contrast {
+// returns either white or black (as a 24-bit int color) based on bgColor
+func TextColor(bgColor int, contrastRatio float64) int {
+	if Contrast(0xffffff, bgColor) >= contrastRatio {
 		return 0xffffff
 	}
 	return 0
 }
 
+// returns the contrast ratio of 24-bit int colors fg and bg (foreground and background)
 func Contrast(fg, bg int) float64 {
 	lum1 := Luminance(unpackColorFloat(fg))
 	lum2 := Luminance(unpackColorFloat(bg))
 	return math.Max(lum1, lum2) / math.Min(lum1, lum2)
 }
 
+// http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
 func Luminance(red, green, blue float64) float64 {
 	red /= 255.0
 	if red < 0.03928 {

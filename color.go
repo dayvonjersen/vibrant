@@ -44,82 +44,11 @@ func RgbToHsl(color int) (h, s, l float64) {
     r,g,b := unpackColor(color)
     h, s, l = colorconv.RGBToHSL(uint8(r),uint8(g),uint8(b))
     return
-/*
-    r,g,b := unpackColorFloat(color)
-    h = Hue(r,g,b)
-    s = Saturation(r,g,b)
-    l = Brightness(r,g,b)
-    return
-*/
-/*	r, g, b := unpackColorFloat(color)
-	r /= 255.0
-	g /= 255.0
-	b /= 255.0
-	min := math.Min(r, math.Min(g, b))
-	max := math.Max(r, math.Max(g, b))
-	delta := max - min
-
-	l = (max + min) / 2
-
-	if delta == 0 {
-		h = 0
-		s = 0
-	} else {
-		switch max {
-		case r:
-			h = math.Mod((g-b)/delta, 6)
-		case g:
-			h = ((b - r) / delta) + 2
-		case b:
-			h = ((r - g) / delta) + 4
-		}
-		s = delta / (1 - math.Abs(2*l-1))
-		h = math.Mod(h*360, 360)
-	}
-	return h, s, l*/
-}
-
-func huetocomponent(v1, v2, h float64) float64 {
-	if 6*h < 1 {
-		return v1 + (v2-v1)*6*h
-	}
-	if 2*h < 1 {
-		return v2
-	}
-	if 3*h < 2 {
-		return v1 + (v2-v1)*((2.0/3.0)-h)*6
-	}
-	return v1
 }
 
 func HslToRgb(h, s, l float64) (rgb int) {
     r, g, b := colorconv.HSLToRGB(h, s, l)
     return packColor(int(r),int(g),int(b))
-/*	var r, g, b int
-	if s == 0 {
-		r = int(l * 255)
-		g = r
-		b = r
-	} else {
-		var v1, v2 float64
-		if l < 0.5 {
-			v2 = l * (1 + s)
-		} else {
-			v2 = (l + s) - (s * l)
-		}
-		v1 = 2*l - v2
-		if h < 0 {
-			h += 1
-		}
-		if h > 1 {
-			h -= 1
-		}
-		r = int(255.0 * huetocomponent(v1, v2, h+(1.0/3.0)))
-		g = int(255.0 * huetocomponent(v1, v2, h))
-		b = int(255.0 * huetocomponent(v1, v2, h-(1.0/3.0)))
-	}
-	return packColor(r, g, b)
-*/
 }
 
 func TextColor(bgColor int, contrast float64) int {
@@ -155,49 +84,4 @@ func Luminance(red, green, blue float64) float64 {
 		blue = math.Pow((blue+0.055)/1.055, 2.4)
 	}
 	return (0.2126 * red) + (0.7152 * green) + (0.0722 * blue)
-}
-
-
-func Hue(r, g, b float64) float64 {
-	v := math.Max(b, math.Max(r, g))
-	t := math.Min(b, math.Min(r, g))
-
-	if v == t {
-		return 0
-	}
-
-	vt := v - t
-	cr := (v - r) / vt
-	cg := (v - g) / vt
-	cb := (v - b) / vt
-
-	var h float64
-	switch {
-	case r == v:
-		h = cb - cg
-	case g == v:
-		h = 2 + cr - cb
-	default:
-		h = 4 + cg - cr
-	}
-
-	h /= 6
-	if h < 0 {
-		h++
-	}
-	return h
-}
-
-func Saturation(r, g, b float64) float64 {
-	v := math.Max(b, math.Max(r, g))
-	t := math.Min(b, math.Min(r, g))
-	if v == t {
-		return 0
-	}
-	return (v - t) / v
-}
-
-func Brightness(r, g, b float64) float64 {
-	v := math.Max(b, math.Max(r, g))
-	return v / 255
 }

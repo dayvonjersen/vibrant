@@ -91,7 +91,7 @@ func Generate(b *Bitmap, numColors int) (Palette, error) {
 		if p.VibrantSwatch != nil {
 			h, s, l := RgbToHsl(p.VibrantSwatch.Color)
 			l = TARGET_DARK_LUMA
-			p.VibrantSwatch = &Swatch{Color: HslToRgb(h, s, l)}
+			p.DarkVibrantSwatch = &Swatch{Color: HslToRgb(h, s, l)}
 		}
 	}
 

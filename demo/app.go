@@ -17,7 +17,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("%v %v\n", time.Now(), r)
 	w.Header().Set("Content-Type", "text/html")
 
-    maxColors := 32
+    maxColors := 256
 
 	fmt.Fprintf(w, `<!doctype html>
 <html>

@@ -38,7 +38,7 @@ It's probably not a good idea to over-do it like that with the colors, but the p
 
 This approach also allows for graceful fallback to a default palette set
 
-Perhaps I should stop trying to words **here is an example of scoped css*, view source until it makes sense:
+Perhaps I should stop trying to words **here is an example of scoped css**, view source until it makes sense:
 http://var.abl.cl/scoped-css
 
 ## Usage
@@ -85,7 +85,7 @@ And there is a simple demo application which is a little more visual:
 $ cd demo && go run app.go
 Listening on 0.0.0.0:8080...
 ```
-![screenshot of app.go](http://var.abl.cl/awesome.png)
+![screenshot of app.go](http://var.abl.cl/better.png)
 
 **This API and the tools provided are a work-in-progress proof-of-concept and certainly could use improvement, better naming, etc.**
 

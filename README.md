@@ -48,28 +48,33 @@ $ go get github.com/generaltso/vibrant
 
 ```go
 package main
-import "os"
-import "log"
-import "fmt"
+
+import (
+	"fmt"
+	"image"
+    _ "image/jpeg"
+	"log"
+	"os"
+)
 
 import "github.com/generaltso/vibrant"
 
 func main() {
-    file, err := os.Open("some_image.jpg");
-    if err != nil {
-       log.Fatalln(err)
-    }
-    img, _, err := image.Decode(f);
-    if err != nil {
-       log.Fatalln(err)
-    }
-    palette, err := vibrant.NewPaletteFromImage(img)
-    if err != nil {
-       log.Fatalln(err)
-    }
-    for name, swatch := range palette.ExtractAwesome() {
-       fmt.Printf("name: %s, color: %s, population: %d", name /* or swatch.Name */, swatch.RGBHex(), swatch.Population)
-    }
+	file, err := os.Open("some_image.jpg")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	img, _, err := image.Decode(file)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	palette, err := vibrant.NewPaletteFromImage(img)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	for name, swatch := range palette.ExtractAwesome() {
+		fmt.Printf("name: %s, color: %s, population: %d\n", name /* or swatch.Name */, swatch.RGBHex(), swatch.Population)
+	}
 }
 ```
 

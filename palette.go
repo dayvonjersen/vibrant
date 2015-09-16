@@ -51,7 +51,7 @@
 //
 // Usage:
 //	package main
-//	
+//
 //	import (
 //		"fmt"
 //		"image"
@@ -59,9 +59,9 @@
 //		"log"
 //		"os"
 //	)
-//	
+//
 //	import "github.com/generaltso/vibrant"
-//	
+//
 //	func main() {
 //		file, err := os.Open("some_image.jpg")
 //		if err != nil {

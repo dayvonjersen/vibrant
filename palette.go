@@ -50,39 +50,39 @@
 // http://var.abl.cl/scoped-css
 //
 // Usage:
-// package main
-// 
-// import (
-// 	"fmt"
-// 	"image"
-//     _ "image/jpeg"
-// 	"log"
-// 	"os"
-// )
-// 
-// import "github.com/generaltso/vibrant"
-// 
-// func main() {
-// 	file, err := os.Open("some_image.jpg")
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-// 	img, _, err := image.Decode(file)
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-// 	palette, err := vibrant.NewPaletteFromImage(img)
-// 	if err != nil {
-// 		log.Fatalln(err)
-// 	}
-// 	for name, swatch := range palette.ExtractAwesome() {
-// 		fmt.Printf("name: %s, color: %s, population: %d\n", name /* or swatch.Name */, swatch.RGBHex(), swatch.Population)
-// 	}
-// }
+//	package main
+//	
+//	import (
+//		"fmt"
+//		"image"
+//	    _ "image/jpeg"
+//		"log"
+//		"os"
+//	)
+//	
+//	import "github.com/generaltso/vibrant"
+//	
+//	func main() {
+//		file, err := os.Open("some_image.jpg")
+//		if err != nil {
+//			log.Fatalln(err)
+//		}
+//		img, _, err := image.Decode(file)
+//		if err != nil {
+//			log.Fatalln(err)
+//		}
+//		palette, err := vibrant.NewPaletteFromImage(img)
+//		if err != nil {
+//			log.Fatalln(err)
+//		}
+//		for name, swatch := range palette.ExtractAwesome() {
+//			fmt.Printf("name: %s, color: %s, population: %d\n", name /* or swatch.Name */, swatch.RGBHex(), swatch.Population)
+//		}
+//	}
 //
 // There is also a command-line tool in vibrant/:
 //    $ cd vibrant && go install
-//    $ vibrant some_image.jpg
+//    $ vibrant some_image.png
 // (it prints CSS to stdout)
 //
 // And there is a simple demo application which is a little more visual:

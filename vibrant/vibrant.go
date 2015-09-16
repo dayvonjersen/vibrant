@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/generaltso/vibrant"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
-	"localhost/vibrant"
 	"os"
 )
 

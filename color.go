@@ -4,7 +4,7 @@ import colorconv "code.google.com/p/sadbox/color"
 import "image/color"
 import "math"
 
-// takes the output from color.Color.RGBA() and normalizes it into
+// takes an image/color.Color and normalizes it into
 // r, g, b components in the range of 0-255
 func ColorToRgb(c color.Color) (int, int, int) {
 	r, g, b, _ := c.RGBA()

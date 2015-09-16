@@ -8,7 +8,7 @@ import "bytes"
 import "io"
 import "strconv"
 
-import "localhost/vibrant"
+import "github.com/generaltso/vibrant"
 import "image"
 import _ "image/jpeg"
 import _ "image/png"

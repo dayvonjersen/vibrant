@@ -1,9 +1,94 @@
+// go port of the awesome Android Palette class:
+// https://android.googlesource.com/platform/frameworks/support/+/b14fc7c/v7/palette/src/android/support/v7/graphics/
+//
+// which I translated from this beautifully cleaned up version:
+// https://github.com/Infinity/Iris
+//
+// and was first made aware of by this Google I/O presentation:
+// https://www.youtube.com/watch?v=ctzWKRlTYHQ?t=451
+//
+// and of course
+// https://github.com/jariz/vibrant.js
+//
+// and last but not least
+// https://github.com/akfish/node-vibrant
+//
+// Why:
+// I was dissatisfied with the performance of the above JavaScript ports.
+// One day, I mocked up an HTML thumbnail view gallery thing and wanted to
+// use "Vibrancy" to decorate the buttons, links, titles, etc. The page had
+// about 25 wallpaper images I used just as placeholders and using
+// Vibrant.js brought my browser to its knees.
+//
+// Yes, I could have just thumbnailed the wallpapers and carried on like a
+// normal person, but this act of stupidity got me thinking: why do this
+// calculation in the browser? If it kills my browser like this, imagine
+// what it must do to mobiles. And it's not like the images are dynamic
+// (in my use case, anyway). They're dynamic in the sense that users upload
+// them but once they're there, they don't change and neither does their palette.
+//
+// So why not do it server-side and cache the result? As a CSS file, which I
+// can then use with <style scoped> e.g.:
+//    <section class="card">
+//        <style scoped>@import "image1-vibrant.css";</style>
+//        <h1 class="darkvibrant">~Fancy Title~</h1>
+//        <div class="card-border muted">
+//            <img src="image1-thumb.jpg">
+//        </div>
+//        <div class="card-caption darkmuted">
+//            <button class="vibrant">Call to action!</button>
+//        </div>
+//    </section>
+//
+// It's probably not a good idea to over-do it like that, but the point is
+// that you can do it in the first place.
+//
+// This approach also allows for graceful fallback to a default palette set
+//
+// Perhaps I should stop trying to words here is an example, view source
+// until it makes sense:
+// http://var.abl.cl/scoped-css
+//
+// Usage:
+//    file, err := os.Open("some_image.jpg");
+//    if err != nil {
+//        log.Fatalln(err)
+//    }
+//    img, _, err := image.Decode(f);
+//    if err != nil {
+//        log.Fatalln(err)
+//    }
+//    palette, err := vibrant.NewPaletteFromImage(img)
+//    if err != nil {
+//        log.Fatalln(err)
+//    }
+//    for name, swatch := range palette.ExtractAwesome() {
+//        fmt.Printf("name: %s, color: %s, population: %d", name /* or swatch.Name */, swatch.RGBHex(), swatch.Population)
+//    }
+//
+// There is also a command-line tool in vibrant/:
+//    $ cd vibrant && go install
+//    $ vibrant some_image.png
+// (it prints CSS to stdout)
+//
+// And there is a simple demo application which is a little more visual:
+//    $ cd demo && go run app.go
+//    Listening on 0.0.0.0:8080...
+// (screenshot: http://var.abl.cl/awesome.png)
+//
+// This API and the tools provided are a work-in-progress proof-of-concept
+// and certainly could use improvement, better naming, etc.
+//
+// Comments, feedback and pull requests are welcome!
+// tso@teknik.io
+// https://github.com/generaltso/vibrant
 package vibrant
 
 import "errors"
 import "math"
 import "image"
 
+// these constants are taken directly from the Android Palette source code
 const (
 	CALCULATE_BITMAP_MIN_DIMENSION float64 = 100
 	//DEFAULT_CALCULATE_NUMBER_COLORS int     = 16
@@ -26,17 +111,33 @@ const (
 	MIN_CONTRAST_BODY_TEXT          float64 = 4.5
 )
 
+// Contains the quantized palette for a given source image
 type Palette struct {
 	Swatches          []*Swatch
 	HighestPopulation int
 	selected          []*Swatch
 }
 
+// Convenience function, uses DEFAULT_CALCULATE_NUMBER_COLORS.
+//
+// To specify a different number of colors to quantize to, use NewPalette
 func NewPaletteFromImage(img image.Image) (Palette, error) {
 	bitmap := NewBitmap(img)
 	return NewPalette(bitmap, DEFAULT_CALCULATE_NUMBER_COLORS)
 }
 
+// The original comments in the Android source suggest using a number
+// between 12 and 32, however this almost always results in too few colors
+// and an incomplete or unsatisfactory (read: inaccurate) result set.
+//
+// For best results, I've found a numColors between 256 and 2048 to be
+// satisfactory. There is a minor (almost negligible) performance hit for
+// high numColors values when calling ExtractAwesome(), however.
+//
+// A numColors above the number of validColors found in the ColorHistogram
+// will skip the quantization step outright.
+//
+// See also source code for ColorCutQuantizer, Vbox, and ColorHistogram
 func NewPalette(b *Bitmap, numColors int) (Palette, error) {
 	var p Palette
 	if numColors < 1 {
@@ -58,6 +159,7 @@ func NewPalette(b *Bitmap, numColors int) (Palette, error) {
 	return p, nil
 }
 
+//
 func (p *Palette) ExtractAwesome() map[string]*Swatch {
 	profiles := map[string][]float64{
 		"Vibrant":      {TARGET_NORMAL_LUMA, MIN_NORMAL_LUMA, MAX_NORMAL_LUMA, TARGET_VIBRANT_SATURATION, MIN_VIBRANT_SATURATION, 1},
@@ -117,12 +219,20 @@ func (p *Palette) findColor(params ...float64) *Swatch {
 
 	return p.FindColor(targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation)
 }
+
+// Finds a Swatch which best matches the specified parameters, taking into
+// consideration also the population of colors in the source image.
+//
+// The returned Swatch.Population value is the sum of the populations it
+// represents.
 func (p *Palette) FindColor(targetLuma, minLuma, maxLuma, targetSaturation, minSaturation, maxSaturation float64) *Swatch {
 	var swatch *Swatch
 	var maxValue float64 = 0
+	population := 0
 	for _, sw := range p.Swatches {
 		_, sat, luma := RgbToHsl(sw.Color)
 		if sat >= minSaturation && sat <= maxSaturation && luma >= minLuma && luma <= maxLuma && !p.isAlreadySelected(sw) {
+			population += sw.Population
 			value := weightedMean(invertDiff(sat, targetSaturation), WEIGHT_SATURATION, invertDiff(luma, targetLuma), WEIGHT_LUMA, float64(sw.Population)/float64(p.HighestPopulation), WEIGHT_POPULATION)
 			if swatch == nil || value > maxValue {
 				swatch = sw
@@ -131,11 +241,15 @@ func (p *Palette) FindColor(targetLuma, minLuma, maxLuma, targetSaturation, minS
 		}
 	}
 	if swatch != nil {
+		swatch.Population = population
 		p.selected = append(p.selected, swatch)
 	}
 	return swatch
 }
 
+// Returns a value in the range 0-1.
+// 1 is returned when value equals target and decreases
+// as the absolute difference between value and target increases.
 func invertDiff(value, target float64) float64 {
 	return 1 - math.Abs(value-target)
 }

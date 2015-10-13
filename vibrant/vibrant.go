@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/generaltso/vibrant"
 	"image"
 	_ "image/jpeg"
@@ -26,9 +27,10 @@ func main() {
 	}
 	palette, err := vibrant.NewPaletteFromImage(img)
 	if err != nil {
-		panic(err.Error())
+		println(err.Error())
+		os.Exit(1)
 	}
 	for _, sw := range palette.ExtractAwesome() {
-		println(sw.String())
+		fmt.Println(sw.String())
 	}
 }

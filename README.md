@@ -90,7 +90,7 @@ And there is a simple demo application which is a little more visual:
 $ cd demo && go run app.go
 Listening on 0.0.0.0:8080...
 ```
-![screenshot of app.go](http://var.abl.cl/vibrant.png) 
+![screenshot of app.go](https://u.teknik.io/G3qoka.png)
 
 
 **This API and the tools provided are a work-in-progress proof-of-concept and certainly could use improvement, better naming, etc.**

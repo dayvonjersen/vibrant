@@ -1,6 +1,8 @@
 package vibrant
 
-import colorconv "code.google.com/p/sadbox/color"
+import colorconv "github.com/generaltso/sadbox/color"
+// by rodrigo moraes, exported from google code
+
 import "image/color"
 import "math"
 
@@ -42,7 +44,8 @@ func unpackColorFloat(color int) (r, g, b float64) {
 
 // given a 24-bit int color (aka HTML hex aka #FFFFFF = 0xFFFFFF = white)
 // returns Hue, Saturation, and Lightness components
-// uses code.google.com/p/sadbox/color for conversion because math is hard
+// uses github.com/generaltso/sadbox/color for conversion because math is hard
+// by rodrigo moraes, exported from google code
 func RgbToHsl(color int) (h, s, l float64) {
 	r, g, b := unpackColor(color)
 	h, s, l = colorconv.RGBToHSL(uint8(r), uint8(g), uint8(b))
@@ -50,7 +53,8 @@ func RgbToHsl(color int) (h, s, l float64) {
 }
 
 // given Hue, Saturation, and Lightness components, returns a 24-bit int color
-// uses code.google.com/p/sadbox/color for conversion because math is hard
+// uses github.com/generaltso/sadbox/color for conversion because math is hard
+// by rodrigo moraes, exported from google code
 func HslToRgb(h, s, l float64) (rgb int) {
 	r, g, b := colorconv.HSLToRGB(h, s, l)
 	return packColor(int(r), int(g), int(b))

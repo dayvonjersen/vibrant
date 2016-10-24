@@ -1,16 +1,18 @@
 package vibrant
 
-import "math"
-import "sort"
+import (
+	"math"
+	"sort"
+)
 
 const (
-	COMPONENT_RED   int = -3
-	COMPONENT_GREEN int = -2
-	COMPONENT_BLUE      = -1
+	componentRed   int = -3
+	componentGreen int = -2
+	componentBlue      = -1
 )
 
 // Represents a tightly fitting box around a color space.
-type Vbox struct {
+type vbox struct {
 	lowerIndex  int
 	upperIndex  int
 	minRed      int
@@ -23,14 +25,14 @@ type Vbox struct {
 	populations map[int]int
 }
 
-func NewVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *Vbox {
-	v := &Vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
+func newVbox(lowerIndex, upperIndex int, colors []int, populations map[int]int) *vbox {
+	v := &vbox{lowerIndex: lowerIndex, upperIndex: upperIndex, colors: colors, populations: populations}
 	v.fitBox()
 	return v
 }
 
 // Recomputes the boundaries of this box to tightly fit the colors within
-func (v *Vbox) fitBox() {
+func (v *vbox) fitBox() {
 	// Reset the min and max to opposite values
 	v.minRed = 255
 	v.minGreen = 255
@@ -62,16 +64,16 @@ func (v *Vbox) fitBox() {
 	}
 }
 
-func (v *Vbox) Volume() int {
+func (v *vbox) Volume() int {
 	return (v.maxRed - v.minRed + 1) * (v.maxGreen - v.minGreen + 1) * (v.maxBlue - v.minBlue + 1)
 }
 
-func (v *Vbox) CanSplit() bool {
+func (v *vbox) CanSplit() bool {
 	return (v.upperIndex - v.lowerIndex + 1) > 1
 }
 
 // Split this color box at the mid-point along its longest dimension
-func (v *Vbox) Split() *Vbox {
+func (v *vbox) Split() *vbox {
 	if !v.CanSplit() {
 		panic("Cannot split a box with only 1 color!")
 	}
@@ -89,14 +91,14 @@ func (v *Vbox) Split() *Vbox {
 	var longestDim, midPoint int
 	switch {
 	case lenRed >= lenGreen && lenRed >= lenBlue:
-		longestDim = COMPONENT_RED
+		longestDim = componentRed
 
 		// Already in RGB, no need to do anything
 		v.sortColors()
 
 		midPoint = (v.minRed + v.maxRed) / 2
 	case lenGreen >= lenRed && lenGreen >= lenBlue:
-		longestDim = COMPONENT_GREEN
+		longestDim = componentGreen
 
 		// RGB to GRB swap
 		v.modifySignificantOctet(longestDim)
@@ -108,7 +110,7 @@ func (v *Vbox) Split() *Vbox {
 
 		midPoint = (v.minGreen + v.maxGreen) / 2
 	default:
-		longestDim = COMPONENT_BLUE
+		longestDim = componentBlue
 
 		// RGB to BGR swap
 		v.modifySignificantOctet(longestDim)
@@ -127,17 +129,17 @@ loop:
 	for i := v.lowerIndex; i <= v.upperIndex; i++ {
 		r, g, b := unpackColor(v.colors[i])
 		switch longestDim {
-		case COMPONENT_RED:
+		case componentRed:
 			if r >= midPoint {
 				splitPoint = i
 				break loop
 			}
-		case COMPONENT_GREEN:
+		case componentGreen:
 			if g >= midPoint {
 				splitPoint = i
 				break loop
 			}
-		case COMPONENT_BLUE:
+		case componentBlue:
 			if b >= midPoint {
 				splitPoint = i
 				break loop
@@ -145,7 +147,7 @@ loop:
 		}
 	}
 
-	vbox := NewVbox(splitPoint+1, v.upperIndex, v.colors, v.populations)
+	vbox := newVbox(splitPoint+1, v.upperIndex, v.colors, v.populations)
 
 	// Now change this box's upperIndex and recompute the color boundaries
 	v.upperIndex = splitPoint
@@ -153,7 +155,7 @@ loop:
 	return vbox
 }
 
-func (v *Vbox) sortColors() {
+func (v *vbox) sortColors() {
 	section := v.colors[v.lowerIndex : v.upperIndex+1]
 	sort.Ints(section)
 	i := v.lowerIndex
@@ -165,18 +167,18 @@ func (v *Vbox) sortColors() {
 
 // Modify the significant octet in a packed color int.
 // Allows sorting based on the value of a single color component.
-func (v *Vbox) modifySignificantOctet(dim int) {
+func (v *vbox) modifySignificantOctet(dim int) {
 	switch dim {
-	case COMPONENT_RED:
+	case componentRed:
 		// Already in RGB, no need to do anything
 		return
-	case COMPONENT_GREEN:
+	case componentGreen:
 		// RGB to GRB swap
 		for i := v.lowerIndex; i <= v.upperIndex; i++ {
 			r, g, b := unpackColor(v.colors[i])
 			v.colors[i] = packColor(g, r, b)
 		}
-	case COMPONENT_BLUE:
+	case componentBlue:
 		// RGB to BGR swap
 		for i := v.lowerIndex; i <= v.upperIndex; i++ {
 			r, g, b := unpackColor(v.colors[i])
@@ -185,7 +187,7 @@ func (v *Vbox) modifySignificantOctet(dim int) {
 	}
 }
 
-func (v *Vbox) AverageColor() *Swatch {
+func (v *vbox) AverageColor() *Swatch {
 	sumRed := 0
 	sumGreen := 0
 	sumBlue := 0
@@ -203,7 +205,7 @@ func (v *Vbox) AverageColor() *Swatch {
 	avgGreen := round(float64(sumGreen) / float64(sumPop))
 	avgBlue := round(float64(sumBlue) / float64(sumPop))
 
-	return &Swatch{Color: packColor(avgRed, avgGreen, avgBlue), Population: sumPop}
+	return &Swatch{Color: Color(packColor(avgRed, avgGreen, avgBlue)), Population: sumPop}
 }
 
 // there is no math.Round ._.

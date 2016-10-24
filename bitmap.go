@@ -1,32 +1,35 @@
 package vibrant
 
-import "github.com/nfnt/resize"
-import "image"
-import "image/color"
-import "math"
+import (
+	"image"
+	"image/color"
+	"math"
 
-// type Bitmap is a simple wrapper for an image.Image
-type Bitmap struct {
+	"github.com/nfnt/resize"
+)
+
+// type bitmap is a simple wrapper for an image.Image
+type bitmap struct {
 	Width  int
 	Height int
 	Source image.Image
 }
 
-func NewBitmap(input image.Image) *Bitmap {
+func newBitmap(input image.Image) *bitmap {
 	bounds := input.Bounds()
-	return &Bitmap{bounds.Dx(), bounds.Dy(), input}
+	return &bitmap{bounds.Dx(), bounds.Dy(), input}
 }
 
-// Scales input image.Image by ratio using github.com/nfnt/resize
-func NewScaledBitmap(input image.Image, ratio float64) *Bitmap {
+// Scales input image.Image by aspect ratio using https://github.com/nfnt/resize
+func newScaledBitmap(input image.Image, ratio float64) *bitmap {
 	bounds := input.Bounds()
 	w := math.Ceil(float64(bounds.Dx()) * ratio)
 	h := math.Ceil(float64(bounds.Dy()) * ratio)
-	return &Bitmap{int(w), int(h), resize.Resize(uint(w), uint(h), input, resize.Bilinear)}
+	return &bitmap{int(w), int(h), resize.Resize(uint(w), uint(h), input, resize.Bilinear)}
 }
 
-// Returns all of the pixels of this Bitmap.Source as a 1D array of color.Color's
-func (b *Bitmap) Pixels() []color.Color {
+// Returns all of the pixels of this bitmap.Source as a 1D array of image/color.Color
+func (b *bitmap) Pixels() []color.Color {
 	c := make([]color.Color, 0)
 	for y := 0; y < b.Height; y++ {
 		for x := 0; x < b.Width; x++ {

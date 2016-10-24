@@ -15,11 +15,13 @@ import (
 	"github.com/generaltso/vibrant"
 )
 
-var output_json bool
-var output_css bool
-var output_compress bool
-var output_lowercase bool
-var output_rgb bool
+var (
+	output_json      bool
+	output_css       bool
+	output_compress  bool
+	output_lowercase bool
+	output_rgb       bool
+)
 
 func usage() {
 	println("usage: vibrant [options] file")
@@ -82,10 +84,10 @@ func print_json(palette vibrant.Palette) {
 	out := map[string]interface{}{}
 	for name, sw := range palette.ExtractAwesome() {
 		if output_rgb {
-			r, g, b := sw.RGB()
+			r, g, b := sw.Color.RGB()
 			out[name] = map[string]int{"r": r, "g": g, "b": b}
 		} else {
-			out[name] = swatch{sw.RGBHex(), sw.TitleTextColor()}
+			out[name] = swatch{sw.Color.RGBHex(), sw.Color.TitleTextColor().RGBHex()}
 		}
 	}
 	var b []byte
@@ -102,14 +104,6 @@ func print_json(palette vibrant.Palette) {
 		str = strings.ToLower(str)
 	}
 	fmt.Println(str)
-}
-
-func textcolor(sw *vibrant.Swatch) (r, g, b int) {
-	c := vibrant.TextColor(sw.Color, vibrant.MIN_CONTRAST_TITLE_TEXT)
-	r = c >> 16 & 0xff
-	g = c >> 8 & 0xff
-	b = c & 0xff
-	return
 }
 
 func rgb(r ...int) string {
@@ -131,11 +125,11 @@ func print_css(palette vibrant.Palette) {
 		var bgcolor string
 		var fgcolor string
 		if output_rgb {
-			bgcolor = rgb(sw.RGB())
-			fgcolor = rgb(textcolor(sw))
+			bgcolor = rgb(sw.Color.RGB())
+			fgcolor = rgb(sw.Color.TitleTextColor().RGB())
 		} else {
-			bgcolor = sw.RGBHex()
-			fgcolor = sw.TitleTextColor()
+			bgcolor = sw.Color.RGBHex()
+			fgcolor = sw.Color.TitleTextColor().RGBHex()
 		}
 		if output_lowercase {
 			name = strings.ToLower(name)
@@ -162,6 +156,6 @@ func shorthex(hex string) string {
 
 func print_plain(palette vibrant.Palette) {
 	for name, sw := range palette.ExtractAwesome() {
-		fmt.Printf("% 12s: %s, population: %d\n", name, sw.RGBHex(), sw.Population)
+		fmt.Printf("% 12s: %s, population: %d\n", name, sw.Color.RGBHex(), sw.Population)
 	}
 }

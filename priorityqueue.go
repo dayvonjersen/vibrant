@@ -1,24 +1,24 @@
 package vibrant
 
-// Simple PriorityQueue taken directly from the example for container/heap
-type PriorityQueue []*Vbox
+// Simple priorityQueue taken directly from the example for container/heap
+type priorityQueue []*vbox
 
-func (pq PriorityQueue) Len() int { return len(pq) }
+func (pq priorityQueue) Len() int { return len(pq) }
 
-func (pq PriorityQueue) Less(i, j int) bool {
+func (pq priorityQueue) Less(i, j int) bool {
 	return pq[i].Volume() > pq[j].Volume()
 }
 
-func (pq PriorityQueue) Swap(i, j int) {
+func (pq priorityQueue) Swap(i, j int) {
 	pq[i], pq[j] = pq[j], pq[i]
 }
 
-func (pq *PriorityQueue) Push(x interface{}) {
-	item := x.(*Vbox)
+func (pq *priorityQueue) Push(x interface{}) {
+	item := x.(*vbox)
 	*pq = append(*pq, item)
 }
 
-func (pq *PriorityQueue) Pop() interface{} {
+func (pq *priorityQueue) Pop() interface{} {
 	old := *pq
 	n := len(old)
 	item := old[n-1]

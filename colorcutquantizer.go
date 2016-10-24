@@ -3,8 +3,8 @@ package vibrant
 import "container/heap"
 
 const (
-	BLACK_MAX_LIGHTNESS float64 = 0.05
-	WHITE_MIN_LIGHTNESS float64 = 0.95
+	blackMaxLightness float64 = 0.05
+	whiteMinLightness float64 = 0.95
 )
 
 // A color quantizer based on the Median-cut algorithm, optimized for
@@ -17,7 +17,7 @@ const (
 //
 // Whereas median-cut divides cubes so they all have roughly the same
 // population, this quantizer divides boxes based on their color volume.
-type ColorCutQuantizer struct {
+type colorCutQuantizer struct {
 	Colors           []int
 	ColorPopulations map[int]int
 	QuantizedColors  []*Swatch
@@ -28,17 +28,17 @@ type ColorCutQuantizer struct {
 // "that particular shade of red which occurs in the red-eye effect"
 // see enwp.org/Red-eye_effect
 func shouldIgnoreColor(color int) bool {
-	h, s, l := RgbToHsl(color)
-	return l <= BLACK_MAX_LIGHTNESS || l >= WHITE_MIN_LIGHTNESS || (h >= 0.0278 && h <= 0.1028 && s <= 0.82)
+	h, s, l := rgbToHsl(color)
+	return l <= blackMaxLightness || l >= whiteMinLightness || (h >= 0.0278 && h <= 0.1028 && s <= 0.82)
 }
 
 func shouldIgnoreColorSwatch(sw *Swatch) bool {
-	return shouldIgnoreColor(sw.Color)
+	return shouldIgnoreColor(int(sw.Color))
 }
 
-func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
+func newColorCutQuantizer(bitmap bitmap, maxColors int) *colorCutQuantizer {
 	pixels := bitmap.Pixels()
-	histo := NewColorHistogram(pixels)
+	histo := newColorHistogram(pixels)
 	colorPopulations := make(map[int]int, histo.NumberColors)
 	for i, c := range histo.Colors {
 		colorPopulations[c] = histo.ColorCounts[i]
@@ -52,11 +52,11 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 		}
 	}
 	validCount := len(validColors)
-	ccq := &ColorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
+	ccq := &colorCutQuantizer{Colors: validColors, ColorPopulations: colorPopulations}
 	if validCount <= maxColors {
 		// note: no quantization actually occurs
 		for _, c := range validColors {
-			ccq.QuantizedColors = append(ccq.QuantizedColors, &Swatch{Color: c, Population: colorPopulations[c]})
+			ccq.QuantizedColors = append(ccq.QuantizedColors, &Swatch{Color: Color(c), Population: colorPopulations[c]})
 		}
 	} else {
 		ccq.quantizePixels(validCount-1, maxColors)
@@ -65,12 +65,12 @@ func NewColorCutQuantizer(bitmap Bitmap, maxColors int) *ColorCutQuantizer {
 }
 
 // see also vbox.go
-func (ccq *ColorCutQuantizer) quantizePixels(maxColorIndex, maxColors int) {
-	pq := make(PriorityQueue, 0)
+func (ccq *colorCutQuantizer) quantizePixels(maxColorIndex, maxColors int) {
+	pq := make(priorityQueue, 0)
 	heap.Init(&pq)
-	heap.Push(&pq, NewVbox(0, maxColorIndex, ccq.Colors, ccq.ColorPopulations))
+	heap.Push(&pq, newVbox(0, maxColorIndex, ccq.Colors, ccq.ColorPopulations))
 	for pq.Len() < maxColors {
-		v := heap.Pop(&pq).(*Vbox)
+		v := heap.Pop(&pq).(*vbox)
 		if v.CanSplit() {
 			heap.Push(&pq, v.Split())
 			heap.Push(&pq, v)
@@ -79,7 +79,7 @@ func (ccq *ColorCutQuantizer) quantizePixels(maxColorIndex, maxColors int) {
 		}
 	}
 	for pq.Len() > 0 {
-		v := heap.Pop(&pq).(*Vbox)
+		v := heap.Pop(&pq).(*vbox)
 		swatch := v.AverageColor()
 		if !shouldIgnoreColorSwatch(swatch) {
 			ccq.QuantizedColors = append(ccq.QuantizedColors, swatch)

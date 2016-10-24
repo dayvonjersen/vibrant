@@ -1,22 +1,53 @@
 package vibrant
 
-import colorconv "github.com/generaltso/sadbox/color"
-// by rodrigo moraes, exported from google code
+import (
+	"fmt"
+	"image/color"
+	"math"
 
-import "image/color"
-import "math"
+	colorconv "github.com/generaltso/sadbox/color" // by rodrigo moraes, exported from google code
+)
+
+type Color int
+
+// Same as RGBHex()
+func (c Color) String() string {
+	return c.RGBHex()
+}
+
+func (c Color) RGB() (r, g, b int) {
+	return unpackColor(int(c))
+}
+
+// e.g. "#bada55"
+func (c Color) RGBHex() string {
+	r, g, b := unpackColor(int(c))
+	return fmt.Sprintf("#%02x%02x%02x", r, g, b)
+}
+
+// Returns either black or white based on contrastRatio.
+func (c Color) TextColor(contrastRatio float64) Color {
+	if contrast(0xffffff, int(c)) >= contrastRatio {
+		return Color(0xffffff)
+	}
+	return Color(0)
+}
+
+// Returns either black or white based on MIN_CONTRAST_TITLE_TEXT
+func (c Color) TitleTextColor() Color {
+	return c.TextColor(MIN_CONTRAST_TITLE_TEXT)
+}
+
+// Returns either black or white based on MIN_CONTRAST_BODY_TEXT
+func (c Color) BodyTextColor() Color {
+	return c.TextColor(MIN_CONTRAST_BODY_TEXT)
+}
 
 // takes an image/color.Color and normalizes it into
 // r, g, b components in the range of 0-255
-func ColorToRgb(c color.Color) (int, int, int) {
+func colorToRgb(c color.Color) (int, int, int) {
 	r, g, b, _ := c.RGBA()
 	return int(r >> 8), int(g >> 8), int(b >> 8)
-}
-
-// inverse operation of ColorToRgb
-func RgbToColor(r, g, b int) color.Color {
-	rgba := color.RGBA{R: uint8(r), G: uint8(g), B: uint8(b), A: 0xff}
-	return rgba
 }
 
 // takes r, g, b components in the range of 0-255 and packs them into
@@ -46,7 +77,7 @@ func unpackColorFloat(color int) (r, g, b float64) {
 // returns Hue, Saturation, and Lightness components
 // uses github.com/generaltso/sadbox/color for conversion because math is hard
 // by rodrigo moraes, exported from google code
-func RgbToHsl(color int) (h, s, l float64) {
+func rgbToHsl(color int) (h, s, l float64) {
 	r, g, b := unpackColor(color)
 	h, s, l = colorconv.RGBToHSL(uint8(r), uint8(g), uint8(b))
 	return
@@ -55,28 +86,20 @@ func RgbToHsl(color int) (h, s, l float64) {
 // given Hue, Saturation, and Lightness components, returns a 24-bit int color
 // uses github.com/generaltso/sadbox/color for conversion because math is hard
 // by rodrigo moraes, exported from google code
-func HslToRgb(h, s, l float64) (rgb int) {
+func hslToRgb(h, s, l float64) (rgb int) {
 	r, g, b := colorconv.HSLToRGB(h, s, l)
 	return packColor(int(r), int(g), int(b))
 }
 
-// returns either white or black (as a 24-bit int color) based on bgColor
-func TextColor(bgColor int, contrastRatio float64) int {
-	if Contrast(0xffffff, bgColor) >= contrastRatio {
-		return 0xffffff
-	}
-	return 0
-}
-
 // returns the contrast ratio of 24-bit int colors fg and bg (foreground and background)
-func Contrast(fg, bg int) float64 {
-	lum1 := Luminance(unpackColorFloat(fg))
-	lum2 := Luminance(unpackColorFloat(bg))
+func contrast(fg, bg int) float64 {
+	lum1 := luminance(unpackColorFloat(fg))
+	lum2 := luminance(unpackColorFloat(bg))
 	return math.Max(lum1, lum2) / math.Min(lum1, lum2)
 }
 
 // http://www.w3.org/TR/2008/REC-WCAG20-20081211/#relativeluminancedef
-func Luminance(red, green, blue float64) float64 {
+func luminance(red, green, blue float64) float64 {
 	red /= 255.0
 	if red < 0.03928 {
 		red /= 12.92

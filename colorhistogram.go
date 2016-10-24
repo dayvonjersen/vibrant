@@ -1,22 +1,24 @@
 package vibrant
 
-import "image/color"
-import "sort"
+import (
+	"image/color"
+	"sort"
+)
 
-// Colors and ColorCounts are transformed into a map[int]int by ColorCutQuantizer
+// Colors and ColorCounts are transformed into a map[int]int by colorCutQuantizer
 // where key is the 24-bit color and value is the count
-type ColorHistogram struct {
+type colorHistogram struct {
 	Colors       []int // 24-bit packed int colors
 	ColorCounts  []int // index refers to above color
 	NumberColors int
 }
 
-// See ColorCutQuantizer source for how this is used.
-func NewColorHistogram(colorPixels []color.Color) *ColorHistogram {
+// See colorCutQuantizer source for how this is used.
+func newColorHistogram(colorPixels []color.Color) *colorHistogram {
 	// Transform []color.Color into array of 24-bit ints
 	pixels := make([]int, len(colorPixels))
 	for _, px := range colorPixels {
-		pixels = append(pixels, packColor(ColorToRgb(px)))
+		pixels = append(pixels, packColor(colorToRgb(px)))
 	}
 
 	// Sort the pixels to enable counting
@@ -46,7 +48,7 @@ func NewColorHistogram(colorPixels []color.Color) *ColorHistogram {
 		}
 	}
 
-	return &ColorHistogram{colors, colorCounts, numColors}
+	return &colorHistogram{colors, colorCounts, numColors}
 }
 
 func countDistinctColors(pixels []int) int {

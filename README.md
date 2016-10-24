@@ -1,100 +1,102 @@
 # vibrant
 
-go port of the [Android awesome Palette class](https://android.googlesource.com/platform/frameworks/support/+/b14fc7c/v7/palette/src/android/support/v7/graphics/)
+[![godoc reference](https://godoc.org/github.com/generaltso/vibrant?status.png)](https://godoc.org/github.com/generaltso/vibrant)
 
-which I translated from this beautifully cleaned up version:
-https://github.com/Infinity/Iris
 
-and was first made aware of by [this Google I/O 2014 presentation](https://www.youtube.com/watch?v=ctzWKRlTYHQ?t=451)
+Extract prominent colors from images. Go port of the [Android awesome Palette class](https://android.googlesource.com/platform/frameworks/support/+/b14fc7c/v7/palette/src/android/support/v7/graphics/) aka [Vibrant.js](https://github.com/jariz/vibrant.js).
 
-and of course
-https://github.com/jariz/vibrant.js
+![screenshot of app.go](https://u.teknik.io/Rv3r3.png)
 
-and last but not least
-https://github.com/akfish/node-vibrant
+# install
 
-## Why
-
-I was dissatisfied with the performance of the above JavaScript ports. One day, I mocked up an HTML thumbnail view gallery thing and wanted to use "Vibrancy" to decorate the buttons, links, titles, etc. The page had about 25 wallpaper images I used just as placeholders and using Vibrant.js brought my browser to its knees.
-
-Yes, I could have just thumbnailed the wallpapers and carried on like a normal person, but this act of stupidity got me thinking: why do this calculation in the browser? If it kills my browser like this, imagine what it must do to mobiles. And it's not like the images are dynamic (in my use case, anyway). They're dynamic in the sense that users upload them but once they're there, they don't change and neither does their palette.
-
-So why not do it server-side and cache the result? As a CSS file, which I can then use with `<style scoped>` e.g.:
-```HTML
-<section class="card">
-   <style scoped>@import "image1-vibrant.css";</style>
-   <h1 class="darkvibrant">~Fancy Title~</h1>
-   <div class="card-border muted">
-       <img src="image1-thumb.jpg">
-   </div>
-   <div class="card-caption darkmuted">
-       <button class="vibrant">Call to action!</button>
-   </div>
-</section>
+```
+go get github.com/generaltso/vibrant
 ```
 
-
-It's probably not a good idea to over-do it like that with the colors, but the point is that you *can* do it in the first place.
-
-This approach also allows for graceful fallback to a default palette set
-
-Perhaps I should stop trying to words **here is an example of scoped css**, view source until it makes sense:
-http://var.abl.cl/scoped-css
-
-## Usage
-```bash
-$ go get github.com/generaltso/vibrant
-```
+# usage
 
 ```go
-package main
+// example: create css stylesheet from image file
+checkErr := func(err error) { if err != nil { panic(err) } }
 
-import (
-	"fmt"
-	"image"
-    _ "image/jpeg"
-	"log"
-	"os"
-)
+f, err := os.Open("some_image.jpg")
+checkErr(err)
+defer f.Close()
 
-import "github.com/generaltso/vibrant"
+img, _, err := image.Decode(f)
+checkErr(err)
 
-func main() {
-	file, err := os.Open("some_image.jpg")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	img, _, err := image.Decode(file)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	palette, err := vibrant.NewPaletteFromImage(img)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	for name, swatch := range palette.ExtractAwesome() {
-		fmt.Printf("name: %s, color: %s, population: %d\n", name /* or swatch.Name */, swatch.RGBHex(), swatch.Population)
-	}
+palette, err := vibrant.NewPaletteFromImage(img)
+checkErr(err)
+
+for name, swatch := range palette.ExtractAwesome() {
+  fmt.Printf("/* %s (population: %d) */\n%s\n\n", name, swatch.Population, swatch)
 }
 ```
 
-There is also a command-line tool in vibrant/:
-```bash
-$ cd vibrant && go install
-$ vibrant some_image.png
+###### output:
+```css
+/* LightMuted (population: 253) */
+.lightmuted{background-color:#cbc0a2;color:#000000;}
+
+/* DarkMuted (population: 11069) */
+.darkmuted{background-color:#5b553f;color:#ffffff;}
+
+/* Vibrant (population: 108) */
+.vibrant{background-color:#dfd013;color:#000000;}
+
+/* LightVibrant (population: 87) */
+.lightvibrant{background-color:#f4ed7d;color:#000000;}
+
+/* DarkVibrant (population: 2932) */
+.darkvibrant{background-color:#917606;color:#ffffff;}
+
+/* Muted (population: 4098) */
+.muted{background-color:#a58850;color:#000000;}
+
 ```
-(it prints CSS to stdout)
 
-And there is a simple demo application which is a little more visual:
-```bash
-$ cd demo && go run app.go
-Listening on 0.0.0.0:8080...
+See [godoc reference](https://godoc.org/github.com/generaltso/vibrant) for full API.
+
+# bonus round
+
+## reference implementation/command line tool
 ```
-![screenshot of app.go](https://u.teknik.io/G3qoka.png)
+go get github.com/generaltso/vibrant/cmd/vibrant
+```
+
+```
+usage: vibrant [options] file
+
+options:
+  -compress
+    	Strip whitespace from output.
+  -css
+    	Output results in CSS.
+  -json
+    	Output results in JSON.
+  -lowercase
+    	Use lowercase only for all output. (default true)
+  -rgb
+    	Output RGB instead of HTML hex, e.g. #ffffff.
+```
+
+## webapp
+
+```
+go get github.com/generaltso/vibrant
+cd $GOPATH/github.com/generaltso/vibrant
+go run webapp.go
+# open http://localhost:8080/ in a browser
+```
 
 
-**This API and the tools provided are a work-in-progress proof-of-concept and certainly could use improvement, better naming, etc.**
+# thanks
 
-Comments, feedback and pull requests are welcome!
-[email me](mailto:tso@teknik.io)
-[find this project on github](https://github.com/generaltso/vibrant)
+https://github.com/Infinity/Iris
+
+[This Google I/O 2014 presentation](https://www.youtube.com/watch?v=ctzWKRlTYHQ?t=451)
+
+https://github.com/jariz/vibrant.js
+
+https://github.com/akfish/node-vibrant

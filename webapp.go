@@ -87,11 +87,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 	case "image/jpeg":
 	case "image/png":
 	default:
-		if err != nil {
-			setStatus(400)
-			data.Error = "JPG/PNG only plz."
-			return
-		}
+		setStatus(400)
+		data.Error = "JPG/PNG only plz."
+		return
 	}
 
 	if max := r.FormValue("maxColors"); max != "" {
@@ -217,7 +215,7 @@ input[type="text"] {
         </form>
         {{ if .Error }}
         <hr>
-		<h3>Error: {{.Error}}</h3>
+        <h3>Error: {{.Error}}</h3>
         {{ end }}
         {{ if .Response }}
         <hr>
@@ -267,9 +265,9 @@ h2 {
         </figure>
         <textarea readonly onclick='this.select()'>{{.Stylesheet}}</textarea>
         {{ if .Missing }}
-		<h3>If color swatches are missing, try increasing <code>maxColors</code> in the text field above.</h3>
-        <h2>{{.Benchmark}}</h2>
+        <h3>If color swatches are missing, try increasing <code>maxColors</code> in the text field above.</h3>
         {{ end }}
+        <h2>{{.Benchmark}}</h2>
         {{ end }}
     </body>
 </html>`

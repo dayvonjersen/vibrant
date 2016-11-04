@@ -109,14 +109,14 @@ func (p *Palette) ExtractAwesome() map[string]*Swatch {
 		if darkvib, ok := res["DarkVibrant"]; ok {
 			h, s, l := rgbToHsl(int(darkvib.Color))
 			l = TARGET_NORMAL_LUMA
-			res["Vibrant"] = &Swatch{Color: Color(hslToRgb(h, s, l))}
+			res["Vibrant"] = &Swatch{Name: "Vibrant", Color: Color(hslToRgb(h, s, l))}
 		}
 	}
 	if _, darkvib := res["DarkVibrant"]; !darkvib {
 		if vib, ok := res["Vibrant"]; ok {
 			h, s, l := rgbToHsl(int(vib.Color))
 			l = TARGET_DARK_LUMA
-			res["DarkVibrant"] = &Swatch{Color: Color(hslToRgb(h, s, l))}
+			res["DarkVibrant"] = &Swatch{Name: "DarkVibrant", Color: Color(hslToRgb(h, s, l))}
 		}
 	}
 	return res

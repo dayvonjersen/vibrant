@@ -85,7 +85,7 @@ options:
 
 ```
 go get github.com/generaltso/vibrant
-cd $GOPATH/github.com/generaltso/vibrant
+cd $GOPATH/src/github.com/generaltso/vibrant
 go run webapp.go
 # open http://localhost:8080/ in a browser
 ```

@@ -16,6 +16,7 @@ import (
 )
 
 var (
+	input_stdin      bool
 	output_json      bool
 	output_css       bool
 	output_compress  bool
@@ -25,6 +26,7 @@ var (
 
 func usage() {
 	println("usage: vibrant [options] file")
+	println("       cat image.jpg | vibrant -i [options]")
 	println()
 	println("options:")
 	flag.PrintDefaults()
@@ -40,6 +42,7 @@ func checkErr(err error) {
 func main() {
 	flag.Usage = usage
 
+	flag.BoolVar(&input_stdin, "i", false, "Read image data from stdin")
 	flag.BoolVar(&output_compress, "compress", false, "Strip whitespace from output.")
 	flag.BoolVar(&output_css, "css", false, "Output results in CSS.")
 	flag.BoolVar(&output_json, "json", false, "Output results in JSON.")
@@ -48,17 +51,24 @@ func main() {
 
 	flag.Parse()
 
-	filename := flag.Arg(0)
-	if filename == "" {
-		usage()
+	var img image.Image
+	var err error
+
+	if input_stdin {
+		img, _, err = image.Decode(os.Stdin)
+	} else {
+		filename := flag.Arg(0)
+		if filename == "" {
+			usage()
+		}
+
+		f, err := os.Open(filename)
+		checkErr(err)
+
+		img, _, err = image.Decode(f)
+		f.Close()
+		checkErr(err)
 	}
-
-	f, err := os.Open(filename)
-	checkErr(err)
-
-	img, _, err := image.Decode(f)
-	f.Close()
-	checkErr(err)
 
 	palette, err := vibrant.NewPaletteFromImage(img)
 	checkErr(err)

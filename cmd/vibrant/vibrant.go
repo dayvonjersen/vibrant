@@ -67,8 +67,8 @@ func main() {
 
 		img, _, err = image.Decode(f)
 		f.Close()
-		checkErr(err)
 	}
+	checkErr(err)
 
 	palette, err := vibrant.NewPaletteFromImage(img)
 	checkErr(err)

@@ -5,54 +5,88 @@ import (
 	"flag"
 	"fmt"
 	"image"
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
 	"log"
 	"os"
 	"strings"
+
+	_ "image/gif"
+	_ "image/jpeg"
+	_ "image/png"
 
 	"github.com/generaltso/vibrant"
 )
 
 var (
-	input_stdin      bool
-	output_json      bool
-	output_css       bool
-	output_compress  bool
-	output_lowercase bool
-	output_rgb       bool
+	input_stdin,
+	output_json,
+	output_css,
+	output_compress,
+	output_lowercase,
+	output_rgb bool
 )
 
 func usage() {
-	println("usage: vibrant [options] file")
-	println("       cat image.jpg | vibrant -i [options]")
-	println()
-	println("options:")
+	fmt.Fprintln(os.Stderr,
+		`usage: vibrant [options] file
+       cat image.jpg | vibrant -i [options]
+
+options:`)
 	flag.PrintDefaults()
 	os.Exit(2)
 }
 
 func checkErr(err error) {
 	if err != nil {
-		log.Panicln(err)
+		log.Fatalln(err)
 	}
 }
 
 func main() {
 	flag.Usage = usage
 
-	flag.BoolVar(&input_stdin, "i", false, "Read image data from stdin")
-	flag.BoolVar(&output_compress, "compress", false, "Strip whitespace from output.")
-	flag.BoolVar(&output_css, "css", false, "Output results in CSS.")
-	flag.BoolVar(&output_json, "json", false, "Output results in JSON.")
-	flag.BoolVar(&output_lowercase, "lowercase", true, "Use lowercase only for all output.")
-	flag.BoolVar(&output_rgb, "rgb", false, "Output RGB instead of HTML hex, e.g. #ffffff.")
+	flag.BoolVar(
+		&input_stdin,
+		"i",
+		false,
+		"Read image data from stdin",
+	)
+	flag.BoolVar(
+		&output_compress,
+		"compress",
+		false,
+		"Strip whitespace from output.",
+	)
+	flag.BoolVar(
+		&output_css,
+		"css",
+		false,
+		"Output results in CSS.",
+	)
+	flag.BoolVar(
+		&output_json,
+		"json",
+		false,
+		"Output results in JSON.",
+	)
+	flag.BoolVar(
+		&output_lowercase,
+		"lowercase",
+		true,
+		"Use lowercase only for all output.",
+	)
+	flag.BoolVar(
+		&output_rgb,
+		"rgb",
+		false,
+		"Output RGB e.g. rgb(255,255,255) instead of HTML hex e.g. #ffffff.",
+	)
 
 	flag.Parse()
 
-	var img image.Image
-	var err error
+	var (
+		img image.Image
+		err error
+	)
 
 	if input_stdin {
 		img, _, err = image.Decode(os.Stdin)
@@ -86,8 +120,7 @@ func main() {
 }
 
 type swatch struct {
-	Color string
-	Text  string
+	Color, Text string
 }
 
 func print_json(palette vibrant.Palette) {
@@ -100,8 +133,10 @@ func print_json(palette vibrant.Palette) {
 			out[name] = swatch{sw.Color.RGBHex(), sw.Color.TitleTextColor().RGBHex()}
 		}
 	}
-	var b []byte
-	var err error
+	var (
+		b   []byte
+		err error
+	)
 	if output_compress {
 		b, err = json.Marshal(out)
 	} else {
@@ -132,8 +167,8 @@ func print_css(palette vibrant.Palette) {
 		sc = ""
 	}
 	for name, sw := range palette.ExtractAwesome() {
-		var bgcolor string
-		var fgcolor string
+		var bgcolor, fgcolor string
+
 		if output_rgb {
 			bgcolor = rgb(sw.Color.RGB())
 			fgcolor = rgb(sw.Color.TitleTextColor().RGB())
@@ -157,15 +192,29 @@ func print_css(palette vibrant.Palette) {
 }
 
 func shorthex(hex string) string {
-	x := []byte(hex)
-	if x[1] == x[2] && x[3] == x[4] && x[5] == x[6] {
-		return "#" + string(x[1]) + string(x[3]) + string(x[5])
+	if hex[1] == hex[2] && hex[3] == hex[4] && hex[5] == hex[6] {
+		return "#" + string(hex[1]) + string(hex[3]) + string(hex[5])
 	}
 	return hex
 }
 
 func print_plain(palette vibrant.Palette) {
 	for name, sw := range palette.ExtractAwesome() {
-		fmt.Printf("% 12s: %s, population: %d\n", name, sw.Color.RGBHex(), sw.Population)
+		var fmtstr, color string
+		if output_rgb {
+			fmtstr = "% 12s: %- 16s (population: %d)\n"
+			color = rgb(sw.Color.RGB())
+		} else {
+			fmtstr = "% 12s: %- 6s (population: %d)\n"
+			color = sw.Color.RGBHex()
+		}
+		if output_lowercase {
+			name = strings.ToLower(name)
+		}
+		if output_compress && !output_rgb {
+			color = shorthex(color)
+		}
+
+		fmt.Printf(fmtstr, name, color, sw.Population)
 	}
 }

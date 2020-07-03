@@ -13,7 +13,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 
-	"github.com/generaltso/vibrant"
+	"github.com/dayvonjersen/vibrant"
 )
 
 var (

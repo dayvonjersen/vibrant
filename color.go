@@ -5,7 +5,7 @@ import (
 	"image/color"
 	"math"
 
-	colorconv "github.com/generaltso/sadbox/color" // by rodrigo moraes, exported from google code
+	colorconv "github.com/dayvonjersen/sadbox/color" // by rodrigo moraes, exported from google code
 )
 
 type Color int
@@ -75,7 +75,7 @@ func unpackColorFloat(color int) (r, g, b float64) {
 
 // given a 24-bit int color (aka HTML hex aka #FFFFFF = 0xFFFFFF = white)
 // returns Hue, Saturation, and Lightness components
-// uses github.com/generaltso/sadbox/color for conversion because math is hard
+// uses github.com/dayvonjersen/sadbox/color for conversion because math is hard
 // by rodrigo moraes, exported from google code
 func rgbToHsl(color int) (h, s, l float64) {
 	r, g, b := unpackColor(color)
@@ -84,7 +84,7 @@ func rgbToHsl(color int) (h, s, l float64) {
 }
 
 // given Hue, Saturation, and Lightness components, returns a 24-bit int color
-// uses github.com/generaltso/sadbox/color for conversion because math is hard
+// uses github.com/dayvonjersen/sadbox/color for conversion because math is hard
 // by rodrigo moraes, exported from google code
 func hslToRgb(h, s, l float64) (rgb int) {
 	r, g, b := colorconv.HSLToRGB(h, s, l)

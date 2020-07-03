@@ -1,7 +1,7 @@
 // +build ignore
 
 /*
-	sample webapp to demo the functionality of github.com/generaltso/vibrant
+	sample webapp to demo the functionality of github.com/dayvonjersen/vibrant
 
 	base64 encoding the images provides the benefit of not having to manage
 	uploaded files or do any javascript fanciness but comes with a performance penalty
@@ -26,7 +26,7 @@ import (
 
 	"text/template"
 
-	"github.com/generaltso/vibrant"
+	"github.com/dayvonjersen/vibrant"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {

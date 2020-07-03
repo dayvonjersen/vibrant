@@ -1,6 +1,6 @@
 # vibrant
 
-[![godoc reference](https://godoc.org/github.com/generaltso/vibrant?status.png)](https://godoc.org/github.com/generaltso/vibrant)
+[![godoc reference](https://godoc.org/github.com/dayvonjersen/vibrant?status.png)](https://godoc.org/github.com/dayvonjersen/vibrant)
 
 
 Extract prominent colors from images. Go port of the [Android awesome Palette class](https://android.googlesource.com/platform/frameworks/support/+/b14fc7c/v7/palette/src/android/support/v7/graphics/) aka [Vibrant.js](https://github.com/jariz/vibrant.js).
@@ -10,7 +10,7 @@ Extract prominent colors from images. Go port of the [Android awesome Palette cl
 # install
 
 ```
-go get github.com/generaltso/vibrant
+go get github.com/dayvonjersen/vibrant
 ```
 
 # usage
@@ -56,13 +56,13 @@ for name, swatch := range palette.ExtractAwesome() {
 
 ```
 
-See [godoc reference](https://godoc.org/github.com/generaltso/vibrant) for full API.
+See [godoc reference](https://godoc.org/github.com/dayvonjersen/vibrant) for full API.
 
 # bonus round
 
 ## reference implementation/command line tool
 ```
-go get github.com/generaltso/vibrant/cmd/vibrant
+go get github.com/dayvonjersen/vibrant/cmd/vibrant
 ```
 
 ```
@@ -84,8 +84,8 @@ options:
 ## webapp
 
 ```
-go get github.com/generaltso/vibrant
-cd $GOPATH/src/github.com/generaltso/vibrant
+go get github.com/dayvonjersen/vibrant
+cd $GOPATH/src/github.com/dayvonjersen/vibrant
 go run webapp.go
 # open http://localhost:8080/ in a browser
 ```

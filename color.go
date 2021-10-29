@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-
-	colorconv "github.com/dayvonjersen/sadbox/color" // by rodrigo moraes, exported from google code
 )
 
 type Color int
@@ -79,7 +77,7 @@ func unpackColorFloat(color int) (r, g, b float64) {
 // by rodrigo moraes, exported from google code
 func rgbToHsl(color int) (h, s, l float64) {
 	r, g, b := unpackColor(color)
-	h, s, l = colorconv.RGBToHSL(uint8(r), uint8(g), uint8(b))
+	h, s, l = RGBToHSL(uint8(r), uint8(g), uint8(b))
 	return
 }
 
@@ -87,7 +85,7 @@ func rgbToHsl(color int) (h, s, l float64) {
 // uses github.com/dayvonjersen/sadbox/color for conversion because math is hard
 // by rodrigo moraes, exported from google code
 func hslToRgb(h, s, l float64) (rgb int) {
-	r, g, b := colorconv.HSLToRGB(h, s, l)
+	r, g, b := HSLToRGB(h, s, l)
 	return packColor(int(r), int(g), int(b))
 }
 

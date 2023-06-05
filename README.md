@@ -5,7 +5,7 @@
 
 Extract prominent colors from images. Go port of the [Android awesome Palette class](https://android.googlesource.com/platform/frameworks/support/+/b14fc7c/v7/palette/src/android/support/v7/graphics/) aka [Vibrant.js](https://github.com/jariz/vibrant.js).
 
-![screenshot of app.go](https://u.teknik.io/Rv3r3.png)
+![screenshot of app.go](https://dayvonjersen.com/vibrant-eagle.png)
 
 # install
 

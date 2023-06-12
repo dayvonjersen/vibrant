@@ -1,9 +1,11 @@
 package vibrant
 
 import (
+	"encoding/json"
 	"errors"
 	"image"
 	"math"
+	"strings"
 )
 
 // These constants are taken directly from the Android Palette source code,
@@ -34,6 +36,107 @@ type Palette struct {
 	swatches          []*Swatch
 	highestPopulation int
 	selected          []*Swatch
+}
+
+// CSS4
+//
+// Export as CSS4 variables. Use in your CSS with var()
+// e.g. html { background-color: var(--vibrant); }
+//
+// FIXME(day): variable names not final
+// FIXME(day): variable names not final
+// FIXME(day): variable names not final
+// --vibrant:#123456;
+// --vibrantText:#ffffff;
+// --darkvibrant:#123456;
+// --darkvibrantText:#ffffff;
+// --lightvibrant:#123456;
+// --lightvibrantText:#ffffff;
+// --muted:#123456;
+// --mutedText:#ffffff;
+// --darkmuted:#123456;
+// --darkmutedText:#ffffff;
+// --lightmuted:#123456;
+// --lightmutedText:#ffffff;
+func (p *Palette) CSS4() string {
+	out := ""
+	for k, sw := range p.ExtractAwesome() {
+		// @consistency these variable names should match JSON output
+		// @consistency these variable names should match JSON output
+		// @consistency these variable names should match JSON output
+		out += "--" + strings.ToLower(k) + ":" + sw.Color.String() + ";"
+		out += "--" + strings.ToLower(k) + "Text:" + sw.Color.TitleTextColor().String() + ";"
+	}
+	return out
+}
+
+// JSON
+//
+// err should always be nil unless something catastrophic is happening.
+//
+// JSON structure:
+//
+//	{
+//		"vibrant": 0x123456,
+//		"dark-vibrant": 0x123456,
+//		"light-vibrant": 0x123456,
+//		"muted": 0x123456,
+//		"dark-muted": 0x123456,
+//		"light-muted": 0x123456,
+//		"vibrant-text": 0x123456,
+//		"dark-vibrant-text": 0x123456,
+//		"light-vibrant-text": 0x123456,
+//		"muted-text": 0x123456,
+//		"dark-muted-text": 0x123456,
+//		"light-muted-text": 0x123456
+//	}
+//
+// Please note that encoding/json encodes hex numbers as decimal integers
+// Please note that encoding/json encodes hex numbers as decimal integers
+// Please note that encoding/json encodes hex numbers as decimal integers
+func (p *Palette) JSON() ([]byte, error) {
+	// NOTE(day): As I type this I realize a more elegant data structure might look like
+	// {
+	//		"vibrant": {"color": 0x99ccff, "text": 0xffffff},
+	//		"dark-vibrant": {"color": 0x00007f, "text": 0xffffff},
+	//		...
+	// }
+	// also using PascalCase camelCase or snake_case instead of kebab-case
+	// might yield a more pleasurable user experience.
+	// this library was designed for CSS webdev stuff (that's why vibrant.Color.String() returns #abcdef oh. Oh. I just realized something...
+	// -day Sun 11 Jun 2023 10:28:06 PM EDT
+	// email me@dayvonjersen if you disagree =)
+	// -day Sun 11 Jun 2023 09:57:57 PM EDT
+	type vibrantJSON struct {
+		Vibrant          int `json:"vibrant"`
+		DarkVibrant      int `json:"dark-vibrant"`
+		LightVibrant     int `json:"light-vibrant"`
+		Muted            int `json:"muted"`
+		DarkMuted        int `json:"dark-muted"`
+		LightMuted       int `json:"light-muted"`
+		VibrantText      int `json:"vibrant-text"`
+		DarkVibrantText  int `json:"dark-vibrant-text"`
+		LightVibrantText int `json:"light-vibrant-text"`
+		MutedText        int `json:"muted-text"`
+		DarkMutedText    int `json:"dark-muted-text"`
+		LightMutedText   int `json:"light-muted-text"`
+	}
+	this := p.ExtractAwesome()
+	choose := func(sw *Swatch, defaultColor int, defaultText int) (primary, text int) {
+		if sw == nil {
+			return defaultColor, defaultText
+		}
+		return int(sw.Color), int(sw.Color.TitleTextColor())
+	}
+	// NOTE(day): sensible fallback colors (greyscale)
+	data := &vibrantJSON{}
+	data.Vibrant, data.VibrantText = choose(this["Vibrant"], 0xacaaaa, 0x0)
+	data.LightVibrant, data.LightVibrantText = choose(this["LightVibrant"], 0xffffff, 0x0)
+	data.DarkVibrant, data.DarkVibrantText = choose(this["DarkVibrant"], 0x2b2b2b, 0xffffff)
+	data.LightMuted, data.LightMutedText = choose(this["LightMuted"], 0xdad5d5, 0x0)
+	data.DarkMuted, data.DarkMutedText = choose(this["DarkMuted"], 0x32312f, 0xffffff)
+	data.Muted, data.MutedText = choose(this["Muted"], 0x6d6a6a, 0xffffff)
+	return json.Marshal(data)
 }
 
 // Calls NewPalette with DEFAULT_CALCULATE_NUMBER_COLORS as a default value for numColors.

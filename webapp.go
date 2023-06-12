@@ -1,12 +1,13 @@
+//go:build ignore
 // +build ignore
 
 /*
-	sample webapp to demo the functionality of github.com/dayvonjersen/vibrant
+sample webapp to demo the functionality of github.com/dayvonjersen/vibrant
 
-	base64 encoding the images provides the benefit of not having to manage
-	uploaded files or do any javascript fanciness but comes with a performance penalty
+base64 encoding the images provides the benefit of not having to manage
+uploaded files or do any javascript fanciness but comes with a performance penalty
 
-	DO NOT USE THIS IN A PRODUCTION ENVIRONMENT
+DO NOT USE THIS IN A PRODUCTION ENVIRONMENT
 */
 package main
 
@@ -17,6 +18,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"sorbet/vibrant"
 	"strconv"
 	"time"
 
@@ -25,8 +27,6 @@ import (
 	_ "image/png"
 
 	"text/template"
-
-	"github.com/dayvonjersen/vibrant"
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +56,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		Benchmark        time.Duration
 		DefaultMaxColors int
 		MaxColors        int
+		JSON, CSS4       string
 	}{DefaultMaxColors: vibrant.DEFAULT_CALCULATE_NUMBER_COLORS,
 		MaxColors: vibrant.DEFAULT_CALCULATE_NUMBER_COLORS}
 
@@ -133,6 +134,9 @@ func index(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	data.Stylesheet = stylesheet
+	j, _ := palette.JSON()
+	data.JSON = string(j)
+	data.CSS4 = palette.CSS4()
 	data.Missing = len(awesome) != 6
 	setStatus(200)
 	data.Response = true
@@ -141,8 +145,8 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	http.HandleFunc("/", index)
-	log.Println("Listening on :8080...")
-	log.Fatalln(http.ListenAndServe(":8080", nil))
+	log.Println("Listening on :9999...")
+	log.Fatalln(http.ListenAndServe(":9999", nil))
 }
 
 const tpl = `
@@ -264,6 +268,8 @@ h2 {
             </figcaption>
         </figure>
         <textarea readonly onclick='this.select()'>{{.Stylesheet}}</textarea>
+        <textarea readonly onclick='this.select()'>{{.JSON}}</textarea>
+        <textarea readonly onclick='this.select()'>{{.CSS4}}</textarea>
         {{ if .Missing }}
         <h3>If color swatches are missing, try increasing <code>maxColors</code> in the text field above.</h3>
         {{ end }}
